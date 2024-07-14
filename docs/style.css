@@ -15,7 +15,18 @@ body {
 }
 
 #canvas {
-  cursor: grab; 
+  cursor: grab;
+}
+
+/* #badges-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem;
+} */
+
+#badges-container img {
+  margin: 0 0.5rem;
 }
 
 /* .cursor {
@@ -58,7 +69,12 @@ footer {
 }
 
 a {
-  border-bottom: 0.2em solid #010101;
+  text-decoration: none;
+  color: #010101;
+}
+
+.u-link {
+  border-bottom: 0.2em solid hsl(0, 0%, 0%);
   text-decoration: none;
   color: #010101;
 }
@@ -110,4 +126,8 @@ a:hover {
   position: fixed;
   top: 1rem;
   right: 2rem;
+}
+
+#badges-container {
+  margin: 1rem;
 }
