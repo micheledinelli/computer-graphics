@@ -1,234 +1,230 @@
-let canvas = document.getElementById("canvas");
-let gl = canvas.getContext("webgl");
+import { initBuffers } from "./init-buffers.js";
+import { drawScene } from "./draw-scene.js";
 
-// Define vertex and fragment shader source code
-let vertexShaderSource = `
-    attribute vec4 position;
-    attribute vec2 texCoord;
-    uniform mat4 modelViewMatrix;
-    uniform mat4 projectionMatrix;
-    varying vec2 v_texCoord;
-    void main() {
-        gl_Position = projectionMatrix * modelViewMatrix * position;
-        v_texCoord = texCoord;
-    }
+let cubeRotation = 0.0;
+let deltaTime = 0;
+
+main();
+
+//
+// start here
+//
+function main() {
+  const canvas = document.getElementById("canvas");
+  // Initialize the GL context
+  const gl = canvas.getContext("webgl");
+
+  // Only continue if WebGL is available and working
+  if (gl === null) {
+    alert(
+      "Unable to initialize WebGL. Your browser or machine may not support it."
+    );
+    return;
+  }
+
+  // Set clear color to white, fully opaque
+  gl.clearColor(1.0, 1.0, 1.0, 1.0);
+  // Clear the color buffer with specified clear color
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  // Vertex shader program
+
+  const vsSource = `
+  attribute vec4 aVertexPosition;
+  attribute vec2 aTextureCoord;
+
+  uniform mat4 uModelViewMatrix;
+  uniform mat4 uProjectionMatrix;
+
+  varying highp vec2 vTextureCoord;
+
+  void main(void) {
+    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    vTextureCoord = aTextureCoord;
+  }
 `;
 
-let fragmentShaderSource = `
-    precision mediump float;
-    varying vec2 v_texCoord;
-    uniform sampler2D u_texture;
-    void main() {
-        gl_FragColor = texture2D(u_texture, v_texCoord);
-    }
+  // Fragment shader program
+
+  const fsSource = `
+  varying highp vec2 vTextureCoord;
+
+  uniform sampler2D uSampler;
+
+  void main(void) {
+    gl_FragColor = texture2D(uSampler, vTextureCoord);
+  }
 `;
 
-// Create shaders
-let vertexShader = gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(vertexShader, vertexShaderSource);
-gl.compileShader(vertexShader);
+  // Initialize a shader program; this is where all the lighting
+  // for the vertices and so forth is established.
+  const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(fragmentShader, fragmentShaderSource);
-gl.compileShader(fragmentShader);
+  // Collect all the info needed to use the shader program.
+  // Look up which attributes our shader program is using
+  // for aVertexPosition, aVertexColor and also
+  // look up uniform locations.
+  const programInfo = {
+    program: shaderProgram,
+    attribLocations: {
+      vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
+      textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
+    },
+    uniformLocations: {
+      projectionMatrix: gl.getUniformLocation(
+        shaderProgram,
+        "uProjectionMatrix"
+      ),
+      modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+      uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+    },
+  };
 
-// Create shader program
-let shaderProgram = gl.createProgram();
-gl.attachShader(shaderProgram, vertexShader);
-gl.attachShader(shaderProgram, fragmentShader);
-gl.linkProgram(shaderProgram);
-gl.useProgram(shaderProgram);
+  // Here's where we call the routine that builds all the
+  // objects we'll be drawing.
+  const buffers = initBuffers(gl);
 
-// Define vertices and texture coordinates for a sphere
-let latitudeBands = 100;
-let longitudeBands = 100;
-let radius = 2;
+  // Load texture
+  const texture = loadTexture(gl, "avatar.jpeg");
+  // Flip image pixels into the bottom-to-top order that WebGL expects.
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-let vertexPositionData = [];
-let normalData = [];
-let textureCoordData = [];
-let indexData = [];
+  let then = 0;
 
-for (let latNumber = 0; latNumber <= latitudeBands; latNumber++) {
-  let theta = (latNumber * Math.PI) / latitudeBands;
-  let sinTheta = Math.sin(theta);
-  let cosTheta = Math.cos(theta);
+  // Draw the scene repeatedly
+  function render(now) {
+    now *= 0.001; // convert to seconds
+    deltaTime = now - then;
+    then = now;
 
-  for (let longNumber = 0; longNumber <= longitudeBands; longNumber++) {
-    let phi = (longNumber * 2 * Math.PI) / longitudeBands;
-    let sinPhi = Math.sin(phi);
-    let cosPhi = Math.cos(phi);
+    drawScene(gl, programInfo, buffers, texture, cubeRotation);
+    cubeRotation += deltaTime;
 
-    let x = cosPhi * sinTheta;
-    let y = cosTheta;
-    let z = sinPhi * sinTheta;
-    let u = 1 - longNumber / longitudeBands;
-    let v = 1 - latNumber / latitudeBands;
-
-    normalData.push(x);
-    normalData.push(y);
-    normalData.push(z);
-    textureCoordData.push(u);
-    textureCoordData.push(v);
-    vertexPositionData.push(radius * x);
-    vertexPositionData.push(radius * y);
-    vertexPositionData.push(radius * z);
+    requestAnimationFrame(render);
   }
+  requestAnimationFrame(render);
 }
 
-for (let latNumber = 0; latNumber < latitudeBands; latNumber++) {
-  for (let longNumber = 0; longNumber < longitudeBands; longNumber++) {
-    let first = latNumber * (longitudeBands + 1) + longNumber;
-    let second = first + longitudeBands + 1;
-    indexData.push(first);
-    indexData.push(second);
-    indexData.push(first + 1);
+//
+// Initialize a shader program, so WebGL knows how to draw our data
+//
+function initShaderProgram(gl, vsSource, fsSource) {
+  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    indexData.push(second);
-    indexData.push(second + 1);
-    indexData.push(first + 1);
+  // Create the shader program
+
+  const shaderProgram = gl.createProgram();
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
+
+  // If creating the shader program failed, alert
+
+  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    alert(
+      `Unable to initialize the shader program: ${gl.getProgramInfoLog(
+        shaderProgram
+      )}`
+    );
+    return null;
   }
+
+  return shaderProgram;
 }
 
-let vertexPositionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-gl.bufferData(
-  gl.ARRAY_BUFFER,
-  new Float32Array(vertexPositionData),
-  gl.STATIC_DRAW
-);
+//
+// creates a shader of the given type, uploads the source and
+// compiles it.
+//
+function loadShader(gl, type, source) {
+  const shader = gl.createShader(type);
 
-let textureCoordBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-gl.bufferData(
-  gl.ARRAY_BUFFER,
-  new Float32Array(textureCoordData),
-  gl.STATIC_DRAW
-);
+  // Send the source to the shader object
 
-let indexBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-gl.bufferData(
-  gl.ELEMENT_ARRAY_BUFFER,
-  new Uint16Array(indexData),
-  gl.STATIC_DRAW
-);
+  gl.shaderSource(shader, source);
 
-let positionAttribLocation = gl.getAttribLocation(shaderProgram, "position");
-gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
-gl.vertexAttribPointer(positionAttribLocation, 3, gl.FLOAT, false, 0, 0);
-gl.enableVertexAttribArray(positionAttribLocation);
+  // Compile the shader program
 
-let texCoordLocation = gl.getAttribLocation(shaderProgram, "texCoord");
-gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-gl.enableVertexAttribArray(texCoordLocation);
+  gl.compileShader(shader);
 
-// Define projection and model-view matrices
-let projectionMatrix = mat4.create();
-let modelViewMatrix = mat4.create();
+  // See if it compiled successfully
 
-// Set up the perspective projection matrix
-mat4.perspective(
-  projectionMatrix,
-  Math.PI / 4,
-  canvas.width / canvas.height,
-  0.1,
-  100.0
-);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    alert(
+      `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`
+    );
+    gl.deleteShader(shader);
+    return null;
+  }
 
-// Set up the initial model-view matrix (identity matrix)
-mat4.identity(modelViewMatrix);
-
-// Set up the WebGL viewport
-gl.viewport(0, 0, canvas.width, canvas.height);
-
-// Set up the projection and model-view matrices as uniforms
-let projectionMatrixLocation = gl.getUniformLocation(
-  shaderProgram,
-  "projectionMatrix"
-);
-gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
-
-let modelViewMatrixLocation = gl.getUniformLocation(
-  shaderProgram,
-  "modelViewMatrix"
-);
-
-// Load texture image
-let texture = gl.createTexture();
-let image = new Image();
-image.onload = function () {
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  draw();
-};
-image.src = "avatar.jpeg";
-
-// Clear the canvas and draw the sphere
-function draw() {
-  // Clear the canvas
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  // Apply rotation to the model-view matrix
-  mat4.identity(modelViewMatrix);
-  mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
-  mat4.rotateX(modelViewMatrix, modelViewMatrix, angleX);
-  mat4.rotateY(modelViewMatrix, modelViewMatrix, angleY);
-
-  // Set up the projection and model-view matrices as uniforms
-  gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
-  gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix);
-
-  // Bind the texture
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.uniform1i(gl.getUniformLocation(shaderProgram, "u_texture"), 0);
-
-  // Draw the sphere
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.drawElements(gl.TRIANGLES, indexData.length, gl.UNSIGNED_SHORT, 0);
-
-  angleX += 0.003;
-  angleY += 0.008;
-
-  // Request next frame
-  requestAnimationFrame(draw);
+  return shader;
 }
 
-// Rotate the model-view matrix based on mouse movement
-// Rotate the model-view matrix based on mouse movement
-let angleX = 0;
-let angleY = 0;
-let lastX, lastY;
-let dragging = false;
+//
+// Initialize a texture and load an image.
+// When the image finished loading copy it into the texture.
+//
+function loadTexture(gl, url) {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
 
-canvas.addEventListener("mousedown", function (event) {
-  dragging = true;
-  lastX = event.clientX;
-  lastY = event.clientY;
-});
+  // Because images have to be downloaded over the internet
+  // they might take a moment until they are ready.
+  // Until then put a single pixel in the texture so we can
+  // use it immediately. When the image has finished downloading
+  // we'll update the texture with the contents of the image.
+  const level = 0;
+  const internalFormat = gl.RGBA;
+  const width = 1;
+  const height = 1;
+  const border = 0;
+  const srcFormat = gl.RGBA;
+  const srcType = gl.UNSIGNED_BYTE;
+  const pixel = new Uint8Array([0, 0, 255, 255]); // opaque blue
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    level,
+    internalFormat,
+    width,
+    height,
+    border,
+    srcFormat,
+    srcType,
+    pixel
+  );
 
-canvas.addEventListener("mouseup", function () {
-  dragging = false;
-});
+  const image = new Image();
+  image.onload = () => {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      level,
+      internalFormat,
+      srcFormat,
+      srcType,
+      image
+    );
 
-canvas.addEventListener("mousemove", function (event) {
-  if (!dragging) return;
+    // WebGL1 has different requirements for power of 2 images
+    // vs non power of 2 images so check if the image is a
+    // power of 2 in both dimensions.
+    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+      // Yes, it's a power of 2. Generate mips.
+      gl.generateMipmap(gl.TEXTURE_2D);
+    } else {
+      // No, it's not a power of 2. Turn off mips and set
+      // wrapping to clamp to edge
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+  };
+  image.src = url;
 
-  let deltaX = event.clientX - lastX;
-  let deltaY = event.clientY - lastY;
+  return texture;
+}
 
-  angleX += deltaY * 0.01;
-  angleY += deltaX * 0.01;
-
-  lastX = event.clientX;
-  lastY = event.clientY;
-});
-
-// Start drawing
-draw();
+function isPowerOf2(value) {
+  return (value & (value - 1)) === 0;
+}
