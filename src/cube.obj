@@ -1,19 +1,40 @@
 # Cube.obj
 
-# Vertices
-v -1.0  1.0 -1.0
-v -1.0  1.0  1.0
-v  1.0  1.0  1.0
-v  1.0  1.0 -1.0
-v -1.0 -1.0 -1.0
-v -1.0 -1.0  1.0
-v  1.0 -1.0  1.0
-v  1.0 -1.0 -1.0
+# Vertices for each face
+v -1.0  1.0 -1.0  # Top face
+v -1.0  1.0  1.0  # Top face
+v  1.0  1.0  1.0  # Top face
+v  1.0  1.0 -1.0  # Top face
+
+v -1.0 -1.0 -1.0  # Bottom face
+v -1.0 -1.0  1.0  # Bottom face
+v  1.0 -1.0  1.0  # Bottom face
+v  1.0 -1.0 -1.0  # Bottom face
+
+v -1.0  1.0 -1.0  # Front face
+v -1.0  1.0  1.0  # Front face
+v -1.0 -1.0  1.0  # Front face
+v -1.0 -1.0 -1.0  # Front face
+
+v  1.0  1.0 -1.0  # Back face
+v  1.0  1.0  1.0  # Back face
+v  1.0 -1.0  1.0  # Back face
+v  1.0 -1.0 -1.0  # Back face
+
+v -1.0  1.0 -1.0  # Left face
+v -1.0 -1.0 -1.0  # Left face
+v  1.0 -1.0 -1.0  # Left face
+v  1.0  1.0 -1.0  # Left face
+
+v -1.0  1.0  1.0  # Right face
+v -1.0 -1.0  1.0  # Right face
+v  1.0 -1.0  1.0  # Right face
+v  1.0  1.0  1.0  # Right face
 
 # Faces
-f 1 2 3 4  # Top face
-f 5 6 7 8  # Bottom face
-f 1 2 6 5  # Front face
-f 4 3 7 8  # Back face
-f 1 5 8 4  # Left face
-f 2 6 7 3  # Right face
+f 1  2  3  4  # Top face
+f 5  6  7  8  # Bottom face
+f 9  10 11 12 # Front face
+f 13 14 15 16 # Back face
+f 17 18 19 20 # Left face
+f 21 22 23 24 # Right face
