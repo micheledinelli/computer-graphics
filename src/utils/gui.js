@@ -6,7 +6,6 @@ var controls = {
   theta: 1.57,
   phi: 1.57,
   fovy: 90.0,
-  enable: true,
 };
 
 /**
@@ -65,5 +64,6 @@ function initGUI() {
     .onChange(function () {
       render();
     });
-  // gui.add(controls, "enable");
+
+  gui.closed = true;
 }

@@ -14,13 +14,15 @@ var eye;
 var at = [0, 0, 0];
 var up = [0, 0, 1];
 
+var lightDirection = m4.normalize([1, 1, -1]);
+
 (async function main() {
   canvas = document.getElementById("canvas");
   gl = getWebGLContext(canvas);
 
   initGUI();
 
-  gl.clearColor(0, 0, 0, 1.0);
+  gl.clearColor(1.0, 1.0, 1.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!gl) {
@@ -41,7 +43,7 @@ var up = [0, 0, 1];
   gl.useProgram(program);
 
   gl.enable(gl.DEPTH_TEST);
-  gl.disable(gl.CULL_FACE);
+  gl.enable(gl.CULL_FACE);
   // gl.depthFunc(gl.LEQUAL);
   // gl.enable(gl.CULL_FACE);
   // gl.frontFace(gl.CCW);
@@ -68,6 +70,15 @@ var up = [0, 0, 1];
     gl.STATIC_DRAW
   );
 
+  // Create a buffer for normals
+  var normalBufferObject = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array(cube.normals),
+    gl.STATIC_DRAW
+  );
+
   // Bind the position buffer and assign attribute location
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
   gl.vertexAttribPointer(
@@ -75,10 +86,29 @@ var up = [0, 0, 1];
     3, // Number of elements per attribute
     gl.FLOAT, // Type of elements
     gl.FALSE,
-    3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    0, // Size of an individual vertex
     0 // Offset from the beginning of a single vertex to this attribute
   );
   gl.enableVertexAttribArray(positionAttribLocation);
+
+  // Bind the normal buffer and assign attribute location
+  var normalAttribLocation = gl.getAttribLocation(program, "a_normal");
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+  gl.vertexAttribPointer(
+    normalAttribLocation, // Attribute location
+    3, // Number of elements per attribute
+    gl.FLOAT, // Type of elements
+    gl.FALSE,
+    0, // Size of an individual vertex
+    0 // Offset from the beginning of a single vertex to this attribute
+  );
+  gl.enableVertexAttribArray(normalAttribLocation);
+
+  var lightDirectionUniformLocation = gl.getUniformLocation(
+    program,
+    "u_lightDirection"
+  );
+  gl.uniform3fv(lightDirectionUniformLocation, lightDirection);
 
   // Tell OpenGL state machine which program should be active.
   gl.useProgram(program);
@@ -91,6 +121,7 @@ var up = [0, 0, 1];
   renderLoop();
 })();
 
+/** Function that renders the scene */
 function render() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -98,6 +129,10 @@ function render() {
   var mModelUniformLocation = gl.getUniformLocation(program, "u_model");
   var mViewUniformLocation = gl.getUniformLocation(program, "u_view");
   var mProjUniformLocation = gl.getUniformLocation(program, "u_projection");
+  var mInverseTransposeUniformLocation = gl.getUniformLocation(
+    program,
+    "u_inverseTranspose"
+  );
 
   eye = [
     controls.D * Math.sin(controls.phi) * Math.cos(controls.theta),
@@ -106,6 +141,7 @@ function render() {
   ];
 
   let cameraMatrix = m4.lookAt(eye, at, up);
+
   let viewMatrix = m4.inverse(cameraMatrix);
   let projectionMatrix = m4.perspective(
     degToRad(controls.fovy),
@@ -113,13 +149,20 @@ function render() {
     controls.near,
     controls.far
   );
-
   let modelMatrix = m4.identity();
 
   // Set the uniforms
   gl.uniformMatrix4fv(mProjUniformLocation, false, projectionMatrix);
   gl.uniformMatrix4fv(mViewUniformLocation, false, viewMatrix);
   gl.uniformMatrix4fv(mModelUniformLocation, false, modelMatrix);
+
+  let mul = m4.multiply(viewMatrix, modelMatrix);
+  mul = m4.multiply(projectionMatrix, mul);
+  gl.uniformMatrix4fv(
+    mInverseTransposeUniformLocation,
+    false,
+    m4.transpose(m4.inverse(mul))
+  );
 
   gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
 }
