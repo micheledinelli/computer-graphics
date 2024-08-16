@@ -2,7 +2,7 @@ precision mediump float;
 
 varying float vBrightness;
 
-vec4 color = vec4(1.0, 0.0, 0.0, 1.0);
+vec4 color = vec4(.0, .0, 1.0, 1.0);
 
 void main() {
   // 40% ambient light, 60% diffuse light

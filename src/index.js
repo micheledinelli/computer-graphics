@@ -7,6 +7,8 @@ var canvas;
 var gl;
 
 var cube;
+var mesh = new Array();
+var res;
 
 var program;
 
@@ -35,6 +37,11 @@ var lightDirection = m4.normalize([1, 1, -1]);
   // Loading .obj file
   cube = await loadOBJ("cube-blender.obj");
 
+  mesh.sourceMesh = "./cube/cube.obj";
+
+  // Use utils/load_mesh.js to load mesh
+  res = loadMesh(gl, mesh);
+
   // Setup GLSL program
   program = webglUtils.createProgramFromSources(gl, [
     vertexShaderSource,
@@ -44,9 +51,8 @@ var lightDirection = m4.normalize([1, 1, -1]);
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
-  // gl.depthFunc(gl.LEQUAL);
-  // gl.enable(gl.CULL_FACE);
-  // gl.frontFace(gl.CCW);
+  gl.depthFunc(gl.LEQUAL);
+  gl.frontFace(gl.CCW);
   // gl.cullFace(gl.BACK);
 
   // Lookup vertex attributes
@@ -57,27 +63,23 @@ var lightDirection = m4.normalize([1, 1, -1]);
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
   gl.bufferData(
     gl.ARRAY_BUFFER,
-    new Float32Array(cube.positions),
+    new Float32Array(res.positions),
     gl.STATIC_DRAW
   );
 
   // Create a buffer for indices
-  var indexBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
-  gl.bufferData(
-    gl.ELEMENT_ARRAY_BUFFER,
-    new Uint16Array(cube.indices),
-    gl.STATIC_DRAW
-  );
+  // var indexBufferObject = gl.createBuffer();
+  // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
+  // gl.bufferData(
+  //   gl.ELEMENT_ARRAY_BUFFER,
+  //   new Uint16Array(cube.indices),
+  //   gl.STATIC_DRAW
+  // );
 
   // Create a buffer for normals
   var normalBufferObject = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(cube.normals),
-    gl.STATIC_DRAW
-  );
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(res.normals), gl.STATIC_DRAW);
 
   // Bind the position buffer and assign attribute location
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
@@ -108,6 +110,7 @@ var lightDirection = m4.normalize([1, 1, -1]);
     program,
     "u_lightDirection"
   );
+  m4.normalize(lightDirection);
   gl.uniform3fv(lightDirectionUniformLocation, lightDirection);
 
   // Tell OpenGL state machine which program should be active.
@@ -121,8 +124,17 @@ var lightDirection = m4.normalize([1, 1, -1]);
   renderLoop();
 })();
 
+var time;
+var then;
+var modelXRotationRadians = 1;
+var modelYRotationRadians = 1;
 /** Function that renders the scene */
 function render() {
+  time = performance.now() / 1000;
+  then = time;
+
+  let deltaTime = time - then;
+
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // Lookup uniforms
@@ -149,20 +161,24 @@ function render() {
     controls.near,
     controls.far
   );
+
+  modelYRotationRadians += -0.7 * deltaTime;
+  modelXRotationRadians += -0.4 * deltaTime;
+
   let modelMatrix = m4.identity();
+  modelMatrix = m4.xRotate(modelMatrix, degToRad(30) * time);
+  modelMatrix = m4.yRotate(modelMatrix, degToRad(45) * time);
 
   // Set the uniforms
   gl.uniformMatrix4fv(mProjUniformLocation, false, projectionMatrix);
   gl.uniformMatrix4fv(mViewUniformLocation, false, viewMatrix);
   gl.uniformMatrix4fv(mModelUniformLocation, false, modelMatrix);
-
-  let mul = m4.multiply(viewMatrix, modelMatrix);
-  mul = m4.multiply(projectionMatrix, mul);
   gl.uniformMatrix4fv(
     mInverseTransposeUniformLocation,
     false,
-    m4.transpose(m4.inverse(mul))
+    m4.transpose(m4.inverse(modelMatrix))
   );
 
-  gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
+  // gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, res.numVertices);
 }

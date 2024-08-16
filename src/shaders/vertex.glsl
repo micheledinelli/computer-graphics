@@ -10,8 +10,8 @@ uniform mat4 u_inverseTranspose;
 
 uniform vec3 u_lightDirection;
 
-void main() 
+void main()
 {
-    vBrightness = max(dot(u_lightDirection, normalize(mat3(u_inverseTranspose) * a_normal)), 0.0); 
+    vBrightness = max(dot(u_lightDirection, normalize(mat3(u_inverseTranspose) * a_normal)), 0.0);
     gl_Position = u_projection * u_view * u_model * a_position;
 }
