@@ -2,6 +2,8 @@ var dr = (5.0 * Math.PI) / 180.0;
 var touchStartX, touchStartY;
 var move = false;
 
+var zooming = false;
+
 function onKeyDown(event) {
   // Define key bindings and their actions
   switch (event.key) {
@@ -31,6 +33,9 @@ window.addEventListener("wheel", (event) => {
   // Avoid page scrolling
   event.preventDefault();
 
+  // Tell the program that we are zooming
+  zooming = true;
+
   var delta = Math.sign(event.deltaY) * 0.05;
 
   if (
@@ -51,7 +56,7 @@ window.addEventListener("touchstart", (event) => {
 });
 
 window.addEventListener("touchmove", (event) => {
-  if (!move) return;
+  if (!move && !zooming) return;
 
   // Calculate the distance moved
   var touchMoveX = event.touches[0].clientX;
@@ -87,7 +92,7 @@ window.addEventListener("mousedown", (event) => {
 });
 
 window.addEventListener("mousemove", (event) => {
-  if (!move) return;
+  if (!move && !zooming) return;
 
   // Calculate the distance moved
   var touchMoveX = event.clientX;
