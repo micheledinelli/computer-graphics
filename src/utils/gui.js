@@ -5,7 +5,7 @@ var controls = {
   D: 5.0,
   theta: Math.PI / 2,
   phi: Math.PI / 8,
-  fovy: 90.0,
+  fovy: 45.0,
 };
 
 /**
