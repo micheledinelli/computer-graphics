@@ -43,7 +43,7 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
   // mesh.sourceMesh = "./data/chair/chair.obj";
   // mesh.sourceMesh = "./data/plant/plant_modeling.obj";
   // mesh.sourceMesh = "./data/plant-2/eb_house_plant_01.obj";
-  mesh.sourceMesh = "./data/windmill/Windmill_Textured.obj";
+  mesh.sourceMesh = "./data/windmill/WindMill_Textured.obj";
 
   // Use utils/load_mesh.js to load mesh
   res = loadMesh(gl, mesh);
