@@ -28,11 +28,14 @@ window.addEventListener("keydown", onKeyDown);
 
 // Listen for mouse events (and also scroll with two fingers on the mousepad)
 window.addEventListener("wheel", (event) => {
-  var delta = Math.sign(event.deltaY);
+  // Avoid page scrolling
+  event.preventDefault();
+
+  var delta = Math.sign(event.deltaY) * 0.05;
 
   if (
     Math.max(controls.D + delta, 0) <= 10 &&
-    Math.max(controls.D + delta, 0) >= 1
+    Math.max(controls.D + delta, 0) >= 1.5
   ) {
     controls.D = Math.max(controls.D + delta, 0);
     render();
