@@ -24,7 +24,7 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
 
   initGUI();
 
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(1.0, 1.0, 1.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!gl) {
@@ -37,7 +37,7 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
   // Loading .obj file
   // cube = await loadOBJ("cube-blender.obj");
 
-  // mesh.sourceMesh = "./data/desk.obj";
+  // mesh.sourceMesh = "./data/desk/desk.obj";
   // mesh.sourceMesh = "./data/monitor/monitor.obj";
   // mesh.sourceMesh = "./data/cube/cube.obj";
   // mesh.sourceMesh = "./data/chair/chair.obj";
@@ -145,7 +145,6 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
 function render() {
   let time = performance.now() / 1000;
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
   // Lookup uniforms
   var mModelUniformLocation = gl.getUniformLocation(program, "u_model");
   var mViewUniformLocation = gl.getUniformLocation(program, "u_view");
@@ -172,12 +171,18 @@ function render() {
   );
 
   let modelMatrix = m4.identity();
-  modelMatrix = m4.yRotate(modelMatrix, time);
 
   // Set the uniforms
   gl.uniformMatrix4fv(mProjUniformLocation, false, projectionMatrix);
   gl.uniformMatrix4fv(mViewUniformLocation, false, viewMatrix);
   gl.uniformMatrix4fv(mModelUniformLocation, false, modelMatrix);
+
+  // Move the light direction every frame a little bit
+  lightDirection = m4.normalize([Math.sin(time) * Math.PI, Math.cos(time), -1]);
+  gl.uniform3fv(
+    gl.getUniformLocation(program, "u_lightDirection"),
+    lightDirection
+  );
 
   // Multiply the model matrix by the view matrix
   // and then by the projection matrix

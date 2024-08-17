@@ -1,23 +1,18 @@
-var dr = (5.0 * Math.PI) / 180.0;
-var touchStartX, touchStartY;
-var move = false;
-
-var zooming = false;
-
 function onKeyDown(event) {
+  let dr = 0.05; // Rotation increment
   // Define key bindings and their actions
   switch (event.key) {
     case "ArrowUp":
       controls.phi = Math.max(controls.phi - dr, 0.1);
       break;
     case "ArrowDown":
-      controls.phi = Math.min(controls.phi + dr, 3);
+      controls.phi = Math.min(controls.phi + dr, Math.PI - 0.1);
       break;
     case "ArrowRight":
-      controls.theta = Math.min(controls.theta + dr, 6.28);
+      controls.theta += dr;
       break;
     case "ArrowLeft":
-      controls.theta = Math.max(controls.theta - dr, 0);
+      controls.theta -= dr;
       break;
     default:
       break;
@@ -25,97 +20,36 @@ function onKeyDown(event) {
   render();
 }
 
-// Listen for keydown events
+function wheel(event) {
+  // Adjust the zoom speed and rotation speed
+  const zoomSpeed = 0.1;
+  const rotateSpeed = 0.005;
+
+  // Get the scroll direction for zoom (deltaY) and rotation (deltaX)
+  const deltaZoom = -Math.sign(event.deltaY) * zoomSpeed;
+  const deltaRotateX = -event.deltaX * rotateSpeed; // Horizontal scroll
+  const deltaRotateY = -event.deltaY * rotateSpeed; // Vertical scroll
+
+  // Update the distance D based on the scroll direction (zoom in/out)
+  controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 10.0));
+
+  // Update the rotation angles based on the scroll direction
+  controls.theta += deltaRotateX;
+  controls.phi += deltaRotateY;
+
+  // Clamp the phi angle to avoid flipping at the poles
+  controls.phi = Math.max(0.1, Math.min(Math.PI - 0.1, controls.phi));
+
+  // Update the camera's eye position based on the new distance and angles
+  eye = [
+    controls.D * Math.sin(controls.phi) * Math.cos(controls.theta), // x
+    controls.D * Math.sin(controls.phi) * Math.sin(controls.theta), // y
+    controls.D * Math.cos(controls.phi), // z
+  ];
+
+  // Re-render the scene with the updated camera position
+  render();
+}
+
 window.addEventListener("keydown", onKeyDown);
-
-// Listen for mouse events (and also scroll with two fingers on the mousepad)
-window.addEventListener("wheel", (event) => {
-  // Avoid page scrolling
-  event.preventDefault();
-
-  // Tell the program that we are zooming
-  zooming = true;
-
-  var delta = Math.sign(event.deltaY) * 0.05;
-
-  if (
-    Math.max(controls.D + delta, 0) <= 10 &&
-    Math.max(controls.D + delta, 0) >= 1.5
-  ) {
-    controls.D = Math.max(controls.D + delta, 0);
-    render();
-  }
-});
-
-window.addEventListener("touchstart", (event) => {
-  // Capture the initial touch position
-  touchStartX = event.touches[0].clientX;
-  touchStartY = event.touches[0].clientY;
-
-  move = true;
-});
-
-window.addEventListener("touchmove", (event) => {
-  if (!move && !zooming) return;
-
-  // Calculate the distance moved
-  var touchMoveX = event.touches[0].clientX;
-  var touchMoveY = event.touches[0].clientY;
-
-  var deltaX = touchMoveX - touchStartX;
-  var deltaY = touchMoveY - touchStartY;
-
-  // Adjust the rotation based on touch movement
-  controls.theta += deltaX * dr * 0.05; // Scale down the rotation speed if needed
-  controls.phi -= deltaY * dr * 0.05; // Inverted for natural rotation
-
-  // Clamp the values to avoid unwanted rotations
-  controls.theta = Math.max(Math.min(controls.theta, 6.28), 0);
-  controls.phi = Math.max(Math.min(controls.phi, 3), 0.1);
-
-  // Update the start position for the next move
-  touchStartX = touchMoveX;
-  touchStartY = touchMoveY;
-
-  render(); // Re-render the scene with updated rotation
-});
-
-window.addEventListener("touchend", (event) => {
-  move = false;
-});
-
-window.addEventListener("mousedown", (event) => {
-  touchStartX = event.clientX;
-  touchStartY = event.clientY;
-
-  move = true;
-});
-
-window.addEventListener("mousemove", (event) => {
-  if (!move && !zooming) return;
-
-  // Calculate the distance moved
-  var touchMoveX = event.clientX;
-  var touchMoveY = event.clientY;
-
-  var deltaX = touchMoveX - touchStartX;
-  var deltaY = touchMoveY - touchStartY;
-
-  // Adjust the rotation based on touch movement
-  controls.theta += deltaX * dr * 0.05; // Scale down the rotation speed if needed
-  controls.phi -= deltaY * dr * 0.05; // Inverted for natural rotation
-
-  // Clamp the values to avoid unwanted rotations
-  controls.theta = Math.max(Math.min(controls.theta, 6.28), 0);
-  controls.phi = Math.max(Math.min(controls.phi, 3), 0.1);
-
-  // Update the start position for the next move
-  touchStartX = touchMoveX;
-  touchStartY = touchMoveY;
-
-  render(); // Re-render the scene with updated rotation
-});
-
-window.addEventListener("mouseup", (event) => {
-  move = false;
-});
+window.addEventListener("wheel", wheel);
