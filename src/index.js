@@ -6,7 +6,6 @@ var canvas;
 /** @type{WebGLRenderingContext}  */
 var gl;
 
-var cube;
 var mesh = new Array();
 var res;
 
@@ -16,7 +15,9 @@ var eye;
 var at = [0, 0, 0];
 var up = [0, 0, -1];
 
-var lightDirection = m4.normalize([1, 0.5, -1]);
+var lightPosition = lightControls.lightPosition
+  ? lightControls.lightPosition
+  : [1, 1, -1];
 
 (async function main() {
   canvas = document.getElementById("canvas");
@@ -24,7 +25,7 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
 
   initGUI();
 
-  gl.clearColor(1.0, 1.0, 1.0, 1.0);
+  gl.clearColor(0, 0.39, 0.7, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!gl) {
@@ -34,15 +35,7 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
   let vertexShaderSource = await loadTextResource("shaders/vertex.glsl");
   let fragmentShaderSource = await loadTextResource("shaders/fragment.glsl");
 
-  // Loading .obj file
-  // cube = await loadOBJ("cube-blender.obj");
-
-  // mesh.sourceMesh = "./data/desk/desk.obj";
-  // mesh.sourceMesh = "./data/monitor/monitor.obj";
   // mesh.sourceMesh = "./data/cube/cube.obj";
-  // mesh.sourceMesh = "./data/chair/chair.obj";
-  // mesh.sourceMesh = "./data/plant/plant_modeling.obj";
-  // mesh.sourceMesh = "./data/plant-2/eb_house_plant_01.obj";
   mesh.sourceMesh = "./data/windmill/WindMill_Textured.obj";
 
   // Use utils/load_mesh.js to load mesh
@@ -123,13 +116,6 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
   var samplerUniformLocation = gl.getUniformLocation(program, "u_sampler");
   gl.uniform1i(samplerUniformLocation, 0);
 
-  var lightDirectionUniformLocation = gl.getUniformLocation(
-    program,
-    "u_lightDirection"
-  );
-  m4.normalize(lightDirection);
-  gl.uniform3fv(lightDirectionUniformLocation, lightDirection);
-
   // Tell OpenGL state machine which program should be active.
   gl.useProgram(program);
 
@@ -143,15 +129,15 @@ var lightDirection = m4.normalize([1, 0.5, -1]);
 
 /** Function that renders the scene */
 function render() {
-  let time = performance.now() / 1000;
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
   // Lookup uniforms
   var mModelUniformLocation = gl.getUniformLocation(program, "u_model");
   var mViewUniformLocation = gl.getUniformLocation(program, "u_view");
   var mProjUniformLocation = gl.getUniformLocation(program, "u_projection");
   var mInverseTransposeUniformLocation = gl.getUniformLocation(
     program,
-    "u_inverseTranspose"
+    "u_modelViewTranspose"
   );
 
   eye = [
@@ -169,7 +155,6 @@ function render() {
     controls.near,
     controls.far
   );
-
   let modelMatrix = m4.identity();
 
   // Set the uniforms
@@ -177,24 +162,57 @@ function render() {
   gl.uniformMatrix4fv(mViewUniformLocation, false, viewMatrix);
   gl.uniformMatrix4fv(mModelUniformLocation, false, modelMatrix);
 
-  // Move the light direction every frame a little bit
-  lightDirection = m4.normalize([Math.sin(time) * Math.PI, Math.cos(time), -1]);
-  gl.uniform3fv(
-    gl.getUniformLocation(program, "u_lightDirection"),
-    lightDirection
-  );
-
   // Multiply the model matrix by the view matrix
   // and then by the projection matrix
-  var mvpMatrix = m4.multiply(projectionMatrix, viewMatrix);
-  mvpMatrix = m4.multiply(mvpMatrix, modelMatrix);
-
+  var modelViewMatrix = m4.multiply(viewMatrix, modelMatrix);
   gl.uniformMatrix4fv(
     mInverseTransposeUniformLocation,
     false,
-    m4.transpose(m4.inverse(mvpMatrix))
+    m4.transpose(m4.inverse(modelViewMatrix))
   );
+
+  setUpLight(program);
 
   // gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
   gl.drawArrays(gl.TRIANGLES, 0, res.numVertices);
+}
+
+function setUpLight(program) {
+  var kaUniformLocation = gl.getUniformLocation(program, "Ka");
+  var kdUniformLocation = gl.getUniformLocation(program, "Kd");
+  var ksUniformLocation = gl.getUniformLocation(program, "Ks");
+  var shininessUniformLocation = gl.getUniformLocation(program, "shininess");
+  var ambientColorUniformLocation = gl.getUniformLocation(
+    program,
+    "ambientColor"
+  );
+  var diffuseColorUniformLocation = gl.getUniformLocation(
+    program,
+    "diffuseColor"
+  );
+  var specularColorUniformLocation = gl.getUniformLocation(
+    program,
+    "specularColor"
+  );
+
+  var lightPositionUniformLocation = gl.getUniformLocation(
+    program,
+    "lightPosition"
+  );
+  lightPosition = [
+    lightControls.lightPositionX,
+    lightControls.lightPositionY,
+    lightControls.lightPositionZ,
+  ];
+  m4.normalize(lightPosition);
+
+  // Sometimes dat gui decides to pass colors in hex format instead of RGB
+  gl.uniform3fv(lightPositionUniformLocation, lightPosition);
+  gl.uniform1f(kaUniformLocation, lightControls.Ka);
+  gl.uniform1f(kdUniformLocation, lightControls.Kd);
+  gl.uniform1f(ksUniformLocation, lightControls.Ks);
+  gl.uniform1f(shininessUniformLocation, lightControls.shininess);
+  gl.uniform3fv(ambientColorUniformLocation, lightControls.ambientColor);
+  gl.uniform3fv(diffuseColorUniformLocation, lightControls.diffuseColor);
+  gl.uniform3fv(specularColorUniformLocation, lightControls.specularColor);
 }

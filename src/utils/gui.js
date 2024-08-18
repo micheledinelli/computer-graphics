@@ -8,6 +8,19 @@ var controls = {
   fovy: 45.0,
 };
 
+var lightControls = {
+  lightPositionX: 1.0,
+  lightPositionY: 1.0,
+  lightPositionZ: -1.0,
+  Ka: 1.0,
+  Kd: 1.0,
+  Ks: 1.0,
+  shininess: 80.0,
+  ambientColor: normalizeRGBVector([52, 25, 0]),
+  diffuseColor: normalizeRGBVector([204, 102, 0]),
+  specularColor: normalizeRGBVector([255, 255, 255]),
+};
+
 /**
  * Initializes the GUI for controlling various parameters.
  */
@@ -65,5 +78,100 @@ function initGUI() {
       render();
     });
 
+  var lightFolder = gui.addFolder("Light controls");
+
+  lightFolder
+    .add(lightControls, "Ka")
+    .min(0)
+    .max(1)
+    .step(0.1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "Kd")
+    .min(0)
+    .max(1)
+    .step(0.1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "Ks")
+    .min(0)
+    .max(1)
+    .step(0.1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "shininess")
+    .min(0)
+    .max(100)
+    .step(1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .addColor(lightControls, "ambientColor")
+    .onChange(function (color) {
+      lightControls.ambientColor = normalizeRGBVector(color);
+      render();
+    });
+
+  lightFolder
+    .addColor(lightControls, "diffuseColor")
+    .onChange(function (color) {
+      lightControls.diffuseColor = normalizeRGBVector(color);
+      render();
+    });
+
+  lightFolder
+    .addColor(lightControls, "specularColor")
+    .onChange(function (color) {
+      lightControls.specularColor = normalizeRGBVector(color);
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "lightPositionX")
+    .min(-10)
+    .max(10)
+    .step(1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "lightPositionY")
+    .min(-10)
+    .max(10)
+    .step(1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "lightPositionZ")
+    .min(-10)
+    .max(10)
+    .step(1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder.closed = true;
   gui.closed = true;
+}
+
+function normalizeRGBVector(rgb) {
+  if (rgb.length !== 3) {
+    return [0, 0, 0];
+  }
+
+  return rgb.map((component) => component / 255);
 }
