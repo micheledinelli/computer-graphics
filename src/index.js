@@ -13,7 +13,7 @@ var program;
 
 var eye;
 var at = [0, 0, 0];
-var up = [0, 0, -1];
+var up = [0, 1, 0];
 
 var lightPosition = lightControls.lightPosition
   ? lightControls.lightPosition
@@ -156,7 +156,8 @@ function render() {
     controls.far
   );
   let modelMatrix = m4.identity();
-
+  let time = performance.now() / 1000;
+  modelMatrix = m4.yRotate(modelMatrix, degToRad(45 * time));
   // Set the uniforms
   gl.uniformMatrix4fv(mProjUniformLocation, false, projectionMatrix);
   gl.uniformMatrix4fv(mViewUniformLocation, false, viewMatrix);
