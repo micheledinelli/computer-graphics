@@ -2,10 +2,10 @@
 var controls = {
   near: 1,
   far: 100,
-  D: 5.0,
+  D: 8.5,
   theta: Math.PI / 2,
   phi: Math.PI / 8,
-  fovy: 45.0,
+  fovy: 40.0,
 };
 
 var lightControls = {
@@ -16,9 +16,9 @@ var lightControls = {
   Kd: 1.0,
   Ks: 1.0,
   shininess: 80.0,
-  ambientColor: normalizeRGBVector([52, 25, 0]),
-  diffuseColor: normalizeRGBVector([204, 102, 0]),
-  specularColor: normalizeRGBVector([255, 255, 255]),
+  ambientColor: [52, 25, 0],
+  diffuseColor: [204, 102, 0],
+  specularColor: [255, 255, 255],
 };
 
 /**
@@ -119,21 +119,18 @@ function initGUI() {
   lightFolder
     .addColor(lightControls, "ambientColor")
     .onChange(function (color) {
-      lightControls.ambientColor = normalizeRGBVector(color);
       render();
     });
 
   lightFolder
     .addColor(lightControls, "diffuseColor")
     .onChange(function (color) {
-      lightControls.diffuseColor = normalizeRGBVector(color);
       render();
     });
 
   lightFolder
     .addColor(lightControls, "specularColor")
     .onChange(function (color) {
-      lightControls.specularColor = normalizeRGBVector(color);
       render();
     });
 
@@ -172,6 +169,5 @@ function normalizeRGBVector(rgb) {
   if (rgb.length !== 3) {
     return [0, 0, 0];
   }
-
   return rgb.map((component) => component / 255);
 }

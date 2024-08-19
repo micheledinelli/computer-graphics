@@ -13,7 +13,7 @@ var program;
 
 var eye;
 var at = [0, 0, 0];
-var up = [0, 1, 0];
+var up = [0, 0, -1];
 
 var lightPosition = lightControls.lightPosition
   ? lightControls.lightPosition
@@ -151,13 +151,14 @@ function render() {
   let viewMatrix = m4.inverse(cameraMatrix);
   let projectionMatrix = m4.perspective(
     degToRad(controls.fovy),
-    canvas.clientWidth / canvas.clientHeight,
+    gl.canvas.clientWidth / gl.canvas.clientHeight,
     controls.near,
     controls.far
   );
   let modelMatrix = m4.identity();
-  let time = performance.now() / 1000;
-  modelMatrix = m4.yRotate(modelMatrix, degToRad(45 * time));
+  // let time = performance.now() / 1000;
+  // modelMatrix = m4.yRotate(modelMatrix, degToRad(45 * time));
+
   // Set the uniforms
   gl.uniformMatrix4fv(mProjUniformLocation, false, projectionMatrix);
   gl.uniformMatrix4fv(mViewUniformLocation, false, viewMatrix);
@@ -213,7 +214,16 @@ function setUpLight(program) {
   gl.uniform1f(kdUniformLocation, lightControls.Kd);
   gl.uniform1f(ksUniformLocation, lightControls.Ks);
   gl.uniform1f(shininessUniformLocation, lightControls.shininess);
-  gl.uniform3fv(ambientColorUniformLocation, lightControls.ambientColor);
-  gl.uniform3fv(diffuseColorUniformLocation, lightControls.diffuseColor);
-  gl.uniform3fv(specularColorUniformLocation, lightControls.specularColor);
+  gl.uniform3fv(
+    ambientColorUniformLocation,
+    normalizeRGBVector(lightControls.ambientColor)
+  );
+  gl.uniform3fv(
+    diffuseColorUniformLocation,
+    normalizeRGBVector(lightControls.diffuseColor)
+  );
+  gl.uniform3fv(
+    specularColorUniformLocation,
+    normalizeRGBVector(lightControls.specularColor)
+  );
 }

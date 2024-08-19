@@ -1,6 +1,5 @@
 function onKeyDown(event) {
   var dr = (5.0 * Math.PI) / 180.0;
-  // Define key bindings and their actions
   switch (event.key) {
     case "ArrowUp":
       controls.phi = Math.max(controls.phi - dr, 0.1);
@@ -21,35 +20,42 @@ function onKeyDown(event) {
 }
 
 function wheel(event) {
-  // Adjust the zoom speed and rotation speed
-  const zoomSpeed = 0.1;
-  const rotateSpeed = 0.005;
-
-  // Get the scroll direction for zoom (deltaY) and rotation (deltaX)
+  const zoomSpeed = 0.03;
   const deltaZoom = -Math.sign(event.deltaY) * zoomSpeed;
-  // const deltaRotateX = -event.deltaX * rotateSpeed; // Horizontal scroll
-  // const deltaRotateY = -event.deltaY * rotateSpeed; // Vertical scroll
-
-  // Update the distance D based on the scroll direction (zoom in/out)
   controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 10.0));
-
-  // Update the rotation angles based on the scroll direction
-  // controls.theta += deltaRotateX;
-  // controls.phi += deltaRotateY;
-
-  // Clamp the phi angle to avoid flipping at the poles
-  // controls.phi = Math.max(0.1, Math.min(Math.PI - 0.1, controls.phi));
-
-  // Update the camera's eye position based on the new distance and angles
-  // eye = [
-  //   controls.D * Math.sin(controls.phi) * Math.cos(controls.theta), // x
-  //   controls.D * Math.sin(controls.phi) * Math.sin(controls.theta), // y
-  //   controls.D * Math.cos(controls.phi), // z
-  // ];
-
-  // Re-render the scene with the updated camera position
   render();
 }
 
+var moveCamera = false;
+var mouseMove = function (event) {
+  if (!moveCamera) return false;
+
+  // Calculate the deltas directly from the event
+  let dX = -(event.movementX * 2 * Math.PI) / canvas.width;
+  let dY = -(event.movementY * 2 * Math.PI) / canvas.height;
+
+  // Scale down the rotation speed
+  dX *= 0.05;
+  dY *= 0.05;
+
+  controls.theta += dX;
+  if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {
+    controls.phi += dY;
+  }
+
+  event.preventDefault();
+  render();
+};
+
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("wheel", wheel);
+
+window.addEventListener("mousedown", () => {
+  moveCamera = true;
+});
+
+window.addEventListener("mousemove", mouseMove);
+
+window.addEventListener("mouseup", () => {
+  moveCamera = false;
+});
