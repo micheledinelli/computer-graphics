@@ -8,12 +8,14 @@ var gl;
 
 var mesh = new Array();
 var res;
+var mesh2 = new Array();
+var res2;
 
 var program;
 
 var eye;
 var at = [0, 0, 0];
-var up = [0, 0, -1];
+var up = [0, 0, 1];
 
 var lightPosition = lightControls.lightPosition
   ? lightControls.lightPosition
@@ -23,9 +25,8 @@ var lightPosition = lightControls.lightPosition
   canvas = document.getElementById("canvas");
   gl = getWebGLContext(canvas);
 
-  initGUI();
-
-  gl.clearColor(0, 0.39, 0.7, 1.0);
+  // gl.clearColor(0, 0.39, 0.7, 1.0);
+  gl.clearColor(0, 0, 0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!gl) {
@@ -36,10 +37,14 @@ var lightPosition = lightControls.lightPosition
   let fragmentShaderSource = await loadTextResource("shaders/fragment.glsl");
 
   // mesh.sourceMesh = "./data/cube/cube.obj";
-  mesh.sourceMesh = "./data/windmill/WindMill_Textured.obj";
-
+  // mesh.sourceMesh = "./data/windmill/WindMill_Textured.obj";
+  // mesh.sourceMesh = "./data/box-room/box-room.obj";
   // Use utils/load_mesh.js to load mesh
+  mesh.sourceMesh = "./data/iso-room/iso-room.obj";
   res = loadMesh(gl, mesh);
+
+  mesh2.sourceMesh = "./data/cube/cube.obj";
+  res2 = loadMesh(gl, mesh2);
 
   // Setup GLSL program
   program = webglUtils.createProgramFromSources(gl, [
@@ -51,68 +56,6 @@ var lightPosition = lightControls.lightPosition
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  // Create a buffer for positions
-  var vertexBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(res.positions),
-    gl.STATIC_DRAW
-  );
-
-  // Create a buffer for normals
-  var normalBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(res.normals), gl.STATIC_DRAW);
-
-  // Create a buffer for textures
-  var textureBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, textureBufferObject);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(res.texcoords),
-    gl.STATIC_DRAW
-  );
-
-  // Bind the position buffer and assign attribute location
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
-  var positionAttribLocation = gl.getAttribLocation(program, "a_position");
-  gl.vertexAttribPointer(
-    positionAttribLocation, // Attribute location
-    3, // Number of elements per attribute
-    gl.FLOAT, // Type of elements
-    gl.FALSE,
-    0, // Size of an individual vertex
-    0 // Offset from the beginning of a single vertex to this attribute
-  );
-  gl.enableVertexAttribArray(positionAttribLocation);
-
-  // Bind the normal buffer and assign attribute location
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-  var normalAttribLocation = gl.getAttribLocation(program, "a_normal");
-  gl.vertexAttribPointer(
-    normalAttribLocation, // Attribute location
-    3, // Number of elements per attribute
-    gl.FLOAT, // Type of elements
-    gl.FALSE,
-    0, // Size of an individual vertex
-    0 // Offset from the beginning of a single vertex to this attribute
-  );
-  gl.enableVertexAttribArray(normalAttribLocation);
-
-  // Bind the texture buffer and assign attribute location
-  gl.bindBuffer(gl.ARRAY_BUFFER, textureBufferObject);
-  var textureAttribLocation = gl.getAttribLocation(program, "a_texCoord");
-  gl.vertexAttribPointer(
-    textureAttribLocation, // Attribute location
-    2, // Number of elements per attribute
-    gl.FLOAT, // Type of elements
-    gl.FALSE,
-    0, // Size of an individual vertex
-    0 // Offset from the beginning of a single vertex to this attribute
-  );
-  gl.enableVertexAttribArray(textureAttribLocation);
-
   var samplerUniformLocation = gl.getUniformLocation(program, "u_sampler");
   gl.uniform1i(samplerUniformLocation, 0);
 
@@ -120,8 +63,8 @@ var lightPosition = lightControls.lightPosition
   gl.useProgram(program);
 
   var renderLoop = () => {
-    requestAnimationFrame(renderLoop);
     render();
+    requestAnimationFrame(renderLoop);
   };
 
   renderLoop();
@@ -129,7 +72,11 @@ var lightPosition = lightControls.lightPosition
 
 /** Function that renders the scene */
 function render() {
+  webglUtils.resizeCanvasToDisplaySize(gl.canvas);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+  createBuffersAndPointAttrib(gl, res);
 
   // Lookup uniforms
   var mModelUniformLocation = gl.getUniformLocation(program, "u_model");
@@ -151,7 +98,7 @@ function render() {
   let viewMatrix = m4.inverse(cameraMatrix);
   let projectionMatrix = m4.perspective(
     degToRad(controls.fovy),
-    gl.canvas.clientWidth / gl.canvas.clientHeight,
+    canvas.clientWidth / canvas.clientHeight,
     controls.near,
     controls.far
   );
@@ -175,8 +122,17 @@ function render() {
 
   setUpLight(program);
 
-  // gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
   gl.drawArrays(gl.TRIANGLES, 0, res.numVertices);
+
+  createBuffersAndPointAttrib(gl, res2);
+
+  // The second object is a cube and is in the center of the room and is smaller
+  modelMatrix = m4.identity();
+  modelMatrix = m4.translate(modelMatrix, 0, 0, 0);
+  modelMatrix = m4.scale(modelMatrix, 0.1, 0.1, 0.1);
+  gl.uniformMatrix4fv(mModelUniformLocation, false, modelMatrix);
+
+  gl.drawArrays(gl.TRIANGLES, 0, res2.numVertices);
 }
 
 function setUpLight(program) {

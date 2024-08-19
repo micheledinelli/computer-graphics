@@ -37,15 +37,22 @@
         width: 100vw;
 
         overflow: hidden;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background-color: #3b3b3b;
       }
 
       canvas {
-        height: 100%;
+        display: block; /* prevents scrollbar */
         width: 100vw;
+        height: 100vh;
       }
     </style>
 
-    <canvas id="canvas" width="500" height="500">
+    <canvas id="canvas">
       Your browser doesn't appear to support the HTML5
       <code>&lt;canvas&gt;</code> element.
     </canvas>

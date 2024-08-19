@@ -1,10 +1,9 @@
-// Available controls for the GUI
 var controls = {
   near: 1,
   far: 100,
-  D: 8.5,
-  theta: Math.PI / 2,
-  phi: Math.PI / 8,
+  D: 5.3,
+  theta: 0.75,
+  phi: 1.0,
   fovy: 40.0,
 };
 
@@ -24,7 +23,7 @@ var lightControls = {
 /**
  * Initializes the GUI for controlling various parameters.
  */
-function initGUI() {
+(async function initGUI() {
   var gui = new dat.GUI();
 
   var dr = (5.0 * Math.PI) / 180.0;
@@ -163,7 +162,7 @@ function initGUI() {
 
   lightFolder.closed = true;
   gui.closed = true;
-}
+})();
 
 function normalizeRGBVector(rgb) {
   if (rgb.length !== 3) {

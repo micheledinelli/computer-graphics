@@ -1,5 +1,6 @@
 function onKeyDown(event) {
   var dr = (5.0 * Math.PI) / 180.0;
+
   switch (event.key) {
     case "ArrowUp":
       controls.phi = Math.max(controls.phi - dr, 0.1);
@@ -27,7 +28,7 @@ function wheel(event) {
 }
 
 var moveCamera = false;
-var mouseMove = function (event) {
+function mouseMove(event) {
   if (!moveCamera) return false;
 
   // Calculate the deltas directly from the event
@@ -45,17 +46,53 @@ var mouseMove = function (event) {
 
   event.preventDefault();
   render();
-};
+}
 
+var lastTouchX = 0;
+var lastTouchY = 0;
+function touchMove(event) {
+  if (!moveCamera || event.touches.length !== 1) {
+    return false;
+  }
+
+  const touch = event.touches[0];
+
+  // Calculate the deltas based on the current touch positions
+  let dX = (-(touch.screenX - lastTouchX) * 2 * Math.PI) / canvas.width;
+  let dY = (-(touch.screenY - lastTouchY) * 2 * Math.PI) / canvas.height;
+
+  // Scale down the rotation speed
+  dX *= 0.05;
+  dY *= 0.05;
+
+  controls.theta += dX;
+  if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {
+    controls.phi += dY;
+  }
+
+  lastTouchX = touch.screenX;
+  lastTouchY = touch.screenY;
+  event.preventDefault();
+  render();
+}
+
+// Bind events to the canvas
 window.addEventListener("keydown", onKeyDown);
-window.addEventListener("wheel", wheel);
-
-window.addEventListener("mousedown", () => {
+canvas.addEventListener("wheel", wheel);
+canvas.addEventListener("mousedown", () => {
   moveCamera = true;
 });
+canvas.addEventListener("mousemove", mouseMove);
+canvas.addEventListener("mouseup", () => {
+  moveCamera = false;
+});
 
-window.addEventListener("mousemove", mouseMove);
-
-window.addEventListener("mouseup", () => {
+canvas.addEventListener("touchstart", (event) => {
+  lastTouchX = event.touches[0].screenX;
+  lastTouchY = event.touches[0].screenY;
+  moveCamera = true;
+});
+canvas.addEventListener("touchmove", touchMove);
+canvas.addEventListener("touchend", () => {
   moveCamera = false;
 });
