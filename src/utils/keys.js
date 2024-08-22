@@ -6,7 +6,7 @@ function onKeyDown(event) {
       controls.phi = Math.max(controls.phi - dr, 0.1);
       break;
     case "ArrowDown":
-      controls.phi = Math.min(controls.phi + dr, Math.PI - 0.1);
+      controls.phi = Math.min(controls.phi + dr, Math.PI / 2 - 0.1);
       break;
     case "ArrowRight":
       controls.theta += dr;
@@ -21,9 +21,9 @@ function onKeyDown(event) {
 }
 
 function wheel(event) {
-  const zoomSpeed = 0.03;
+  const zoomSpeed = 0.1;
   const deltaZoom = -Math.sign(event.deltaY) * zoomSpeed;
-  controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 10.0));
+  controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 40.0));
   render();
 }
 
@@ -39,7 +39,7 @@ function mouseMove(event) {
   dX *= 0.05;
   dY *= 0.05;
 
-  controls.theta += dX;
+  controls.theta -= dX;
   if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {
     controls.phi += dY;
   }

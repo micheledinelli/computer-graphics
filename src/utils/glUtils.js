@@ -44,89 +44,137 @@ async function loadTextResource(url) {
 
 /**
  * Loads an OBJ file from the specified URL and returns the parsed result.
- * @param {string} url - The URL of the OBJ file to load.
+ * @param {string} objHref - The URL of the OBJ file to load.
  * @returns {Promise<Obj>} A promise that resolves to the parsed result of the OBJ file.
  */
-async function loadOBJ(url) {
-  let response = await fetch(url);
-  let text = await response.text();
-  return parseOBJ(text);
+async function loadOBJ(objHref) {
+  // Fetch and parse the OBJ model
+  const response = await fetch(objHref);
+  const text = await response.text();
+  const obj = parseOBJ(text);
+
+  // Fetch and parse the material libraries (MTL)
+  const baseHref = new URL(objHref, window.location.href);
+  const matTexts = await Promise.all(
+    obj.materialLibs.map(async (filename) => {
+      const matHref = new URL(filename, baseHref).href;
+      const response = await fetch(matHref);
+      return await response.text();
+    })
+  );
+  const materials = parseMTL(matTexts.join("\n"));
+
+  // Prepare default textures
+  const textures = {
+    defaultWhite: create1PixelTexture(gl, [255, 255, 255, 255]),
+    defaultNormal: create1PixelTexture(gl, [127, 127, 255, 0]),
+  };
+
+  // Load texture for materials
+  for (const material of Object.values(materials)) {
+    Object.entries(material)
+      .filter(([key]) => key.endsWith("Map"))
+      .forEach(([key, filename]) => {
+        let texture = textures[filename];
+        if (!texture) {
+          const textureHref = new URL(filename, baseHref).href;
+          texture = createTexture(gl, textureHref);
+          textures[filename] = texture;
+        }
+        material[key] = texture;
+      });
+  }
+
+  // Hack the materials to visualize the specular map
+  Object.values(materials).forEach((m) => {
+    m.shininess = 25;
+    m.specular = [3, 2, 1];
+  });
+
+  // Define a default material
+  const defaultMaterial = {
+    diffuse: [1, 1, 1],
+    diffuseMap: textures.defaultWhite,
+    normalMap: textures.defaultNormal,
+    ambient: [0, 0, 0],
+    specular: [1, 1, 1],
+    specularMap: textures.defaultWhite,
+    shininess: 400,
+    opacity: 1,
+  };
+
+  const parts = obj.geometries.map(({ material, data }) => {
+    if (data.color) {
+      if (data.position.length === data.color.length) {
+        data.color = { numComponents: 3, data: data.color };
+      }
+    } else {
+      data.color = { value: [1, 1, 1, 1] };
+    }
+
+    // Generate tangents if data is available
+    if (data.texcoord && data.normal) {
+      data.tangent = generateTangents(data.position, data.texcoord);
+    } else {
+      data.tangent = { value: [1, 0, 0] };
+    }
+
+    if (!data.texcoord) {
+      data.texcoord = { value: [0, 0] };
+    }
+
+    if (!data.normal) {
+      data.normal = { value: [0, 0, 1] };
+    }
+
+    const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
+    return {
+      material: {
+        ...defaultMaterial,
+        ...materials[material],
+      },
+      bufferInfo,
+    };
+  });
 }
 
 /**
- * Parses an OBJ file and returns an Obj object.
  *
- * @param {string} text - The text content of the OBJ file.
- * @returns {Obj} The parsed Obj object containing positions and indices.
+ * @param {*} positions
+ * @returns
  */
-function parseOBJ(text) {
-  let positions = [];
-  let normals = [];
-  let indices = [];
-  let faceNormals = [];
-
-  let lines = text.split("\n");
-  for (let line of lines) {
-    let parts = line.trim().split(/\s+/);
-    if (parts.length > 0) {
-      switch (parts[0]) {
-        case "v": // Vertex position
-          positions.push(
-            parseFloat(parts[1]), // x
-            parseFloat(parts[2]), // y
-            parseFloat(parts[3]) // z
-          );
-          break;
-        case "vn": // Vertex normal
-          normals.push(
-            parseFloat(parts[1]), // x
-            parseFloat(parts[2]), // y
-            parseFloat(parts[3]) // z
-          );
-          break;
-        case "f": // Face
-          let faceIndices = parts.slice(1).map((i) => {
-            // Split the face element into vertex/texture/normal indices
-            let indices = i.split("/").map((x) => parseInt(x) - 1);
-            return indices;
-          });
-
-          // Triangulate the face
-          for (let i = 1; i < faceIndices.length - 1; i++) {
-            // Push the indices
-            indices.push(
-              faceIndices[0][0],
-              faceIndices[i][0],
-              faceIndices[i + 1][0]
-            );
-            // Push the normals
-            faceNormals.push(
-              faceIndices[0][2],
-              faceIndices[i][2],
-              faceIndices[i + 1][2]
-            );
-          }
-          break;
-      }
+function getExtents(positions) {
+  const min = positions.slice(0, 3);
+  const max = positions.slice(0, 3);
+  for (let i = 3; i < positions.length; i += 3) {
+    for (let j = 0; j < 3; ++j) {
+      const v = positions[i + j];
+      min[j] = Math.min(v, min[j]);
+      max[j] = Math.max(v, max[j]);
     }
   }
+  return { min, max };
+}
 
-  // Convert faceNormals to normal vectors
-  let normalData = [];
-  for (let i = 0; i < indices.length; i++) {
-    let normalIndex = faceNormals[i];
-    normalData.push(
-      normals[normalIndex * 3],
-      normals[normalIndex * 3 + 1],
-      normals[normalIndex * 3 + 2]
-    );
-  }
-
-  return new Obj({
-    positions: positions,
-    indices: indices,
-    normals: normalData,
-  });
+/**
+ *
+ * @param {*} geometries
+ * @returns
+ */
+function getGeometriesExtents(geometries) {
+  return geometries.reduce(
+    ({ min, max }, { data }) => {
+      const minMax = getExtents(data.position);
+      return {
+        min: min.map((min, ndx) => Math.min(minMax.min[ndx], min)),
+        max: max.map((max, ndx) => Math.max(minMax.max[ndx], max)),
+      };
+    },
+    {
+      min: Array(3).fill(Number.POSITIVE_INFINITY),
+      max: Array(3).fill(Number.NEGATIVE_INFINITY),
+    }
+  );
 }
 
 /**

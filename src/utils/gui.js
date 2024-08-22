@@ -1,9 +1,9 @@
 var controls = {
   near: 1,
   far: 100,
-  D: 5.3,
-  theta: 0.75,
-  phi: 1.0,
+  D: 10,
+  theta: 2.4,
+  phi: 0.47,
   fovy: 40.0,
 };
 
@@ -11,13 +11,13 @@ var lightControls = {
   lightPositionX: 1.0,
   lightPositionY: 1.0,
   lightPositionZ: -1.0,
-  Ka: 1.0,
-  Kd: 1.0,
+  Ka: 0.7,
+  Kd: 0.7,
   Ks: 1.0,
   shininess: 80.0,
   ambientColor: [52, 25, 0],
   diffuseColor: [204, 102, 0],
-  specularColor: [255, 255, 255],
+  specularColor: [123, 123, 123],
 };
 
 /**
@@ -47,7 +47,7 @@ var lightControls = {
   gui
     .add(controls, "D")
     .min(0)
-    .max(10)
+    .max(40)
     .step(1)
     .onChange(function () {
       render();
@@ -63,7 +63,7 @@ var lightControls = {
   gui
     .add(controls, "phi")
     .min(0.1)
-    .max(3)
+    .max(Math.PI / 2 - 0.1)
     .step(dr)
     .onChange(function () {
       render();
