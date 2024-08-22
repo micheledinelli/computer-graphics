@@ -1,7 +1,7 @@
 var controls = {
   near: 1,
   far: 100,
-  D: 10,
+  D: 12,
   theta: 2.4,
   phi: 0.47,
   fovy: 40.0,
@@ -16,7 +16,7 @@ var lightControls = {
   Ks: 1.0,
   shininess: 80.0,
   ambientColor: [52, 25, 0],
-  diffuseColor: [204, 102, 0],
+  diffuseColor: [217, 184, 151],
   specularColor: [123, 123, 123],
 };
 

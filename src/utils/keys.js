@@ -36,8 +36,8 @@ function mouseMove(event) {
   let dY = -(event.movementY * 2 * Math.PI) / canvas.height;
 
   // Scale down the rotation speed
-  dX *= 0.05;
-  dY *= 0.05;
+  dX *= 0.5;
+  dY *= 0.5;
 
   controls.theta -= dX;
   if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {

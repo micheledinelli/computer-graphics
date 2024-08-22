@@ -9,6 +9,9 @@
     />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
     <!-- Libraries -->
     <!-- <script type="text/javascript" src="libs/webgl-utils.js" defer></script> -->
     <script
@@ -27,36 +30,27 @@
     <script type="text/javascript" src="utils/gui.js" defer></script>
     <script type="text/javascript" src="utils/loader.js" defer></script>
 
+    <!-- Audio -->
+    <script type="text/javascript" src="audio/audio.js" defer></script>
+
     <!-- Entry point -->
     <script type="text/javascript" src="index.js" defer></script>
   </head>
 
   <body>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-
-        height: 100vh;
-        width: 100vw;
-
-        overflow: hidden;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      canvas {
-        display: block; /* prevents scrollbar */
-        width: 100vw;
-        height: 100vh;
-      }
-    </style>
-
     <canvas id="canvas">
       Your browser doesn't appear to support the HTML5
       <code>&lt;canvas&gt;</code> element.
     </canvas>
+
+    <audio loop>
+      <source src="./audio/lofi-study-112191.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+
+    <button id="audio-btn" onclick="toggleAudio()" title="play music">
+      <div class="wave-animation"></div>
+      <div class="play-icon"></div>
+    </button>
   </body>
 </html>

@@ -26,7 +26,7 @@ var meshProgramInfo;
   canvas = document.getElementById("canvas");
   gl = getWebGLContext(canvas);
 
-  gl.clearColor(0, 0, 0, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!gl) {
@@ -35,6 +35,12 @@ var meshProgramInfo;
 
   let vertexShaderSource = await loadTextResource("shaders/vertex.glsl");
   let fragmentShaderSource = await loadTextResource("shaders/fragment.glsl");
+  let fragmentShaderSourceNoTex = await loadTextResource(
+    "shaders/fragment-notex.glsl"
+  );
+  let fragmentShaderSourceAppealing = await loadTextResource(
+    "shaders/fragment-fake.glsl"
+  );
 
   meshProgramInfo = webglUtils.createProgramInfo(gl, [
     vertexShaderSource,
@@ -44,132 +50,74 @@ var meshProgramInfo;
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  // const objHref = "data/avatar/sphere.obj";
-  // const objHref = "data/desk-s/desk.obj";
-  // const objHref = "data/windmill/windmill.obj";
-  // const objHref = "data/iso-room/iso.obj";
-  // const objHref = "data/windmill/windmill.obj";
-  const objHref = "data/chair/chair.obj";
-  // const objHref =
-  //   "https://webglfundamentals.org/webgl/resources/models/chair/chair.obj";
-  const response = await fetch(objHref);
-  const text = await response.text();
-  const obj = parseOBJ(text);
-  const baseHref = new URL(objHref, window.location.href);
-  const matTexts = await Promise.all(
-    obj.materialLibs.map(async (filename) => {
-      const matHref = new URL(filename, baseHref).href;
-      const response = await fetch(matHref);
-      return await response.text();
-    })
-  );
-  const materials = parseMTL(matTexts.join("\n"));
+  let objects = [
+    {
+      href: "data/desk/desk.obj",
 
-  const textures = {
-    defaultWhite: create1PixelTexture(gl, [255, 255, 255, 255]),
-    defaultNormal: create1PixelTexture(gl, [127, 127, 255, 0]),
-  };
+      // Desk has to be flipped on the x axis by 90 degrees
+      modelMatrix: m4.translate(
+        m4.yRotate(m4.identity(), degToRad(-90)),
+        1.5,
+        0.2,
+        0.2
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
+      ]),
+    },
+    {
+      href: "data/monitor.obj",
+      modelMatrix: m4.yRotate(
+        m4.scale(m4.translate(m4.identity(), -0.4, 1.6, 1.6), 0.05, 0.05, 0.05),
+        degToRad(90)
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/avatar/cube.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), -3.0, 4.0, 3.0),
+        0.4,
+        0.4,
+        0.4
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/iso-room/iso.obj",
+      modelMatrix: m4.identity(),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
+      ]),
+    },
+    {
+      href: "data/chair/chair.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.yRotate(m4.identity(), degToRad(-90)), 0, 0.02, 0.8),
+        0.24,
+        0.24,
+        0.24
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
+      ]),
+    },
+  ];
 
-  // Load texture for materials
-  for (const material of Object.values(materials)) {
-    Object.entries(material)
-      .filter(([key]) => key.endsWith("Map"))
-      .forEach(([key, filename]) => {
-        let texture = textures[filename];
-        if (!texture) {
-          const textureHref = new URL(filename, baseHref).href;
-          texture = createTexture(gl, textureHref);
-          textures[filename] = texture;
-        }
-        material[key] = texture;
-      });
+  for (let objToLoad of objects) {
+    let obj = await load(gl, objToLoad.href);
+    objToLoad.parts = obj.parts;
+    objToLoad.objOffset = obj.objOffset;
   }
-
-  Object.values(materials).forEach((m) => {
-    m.shininess = 25;
-    m.specular = [3, 2, 1];
-  });
-
-  const defaultMaterial = {
-    diffuse: [1, 1, 1],
-    diffuseMap: textures.defaultWhite,
-    normalMap: textures.defaultNormal,
-    ambient: [0, 0, 0],
-    specular: [1, 1, 1],
-    specularMap: textures.defaultWhite,
-    shininess: 400,
-    opacity: 1,
-  };
-
-  const parts = obj.geometries.map(({ material, data }) => {
-    if (data.color) {
-      if (data.position.length === data.color.length) {
-        data.color = { numComponents: 3, data: data.color };
-      }
-    } else {
-      data.color = { value: [1, 1, 1, 1] };
-    }
-
-    if (data.texcoord && data.normal) {
-      data.tangent = generateTangents(data.position, data.texcoord);
-    } else {
-      data.tangent = { value: [1, 0, 0] };
-    }
-
-    if (!data.texcoord) {
-      data.texcoord = { value: [0, 0] };
-    }
-
-    if (!data.normal) {
-      data.normal = { value: [0, 0, 1] };
-    }
-
-    const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
-    return {
-      material: {
-        ...defaultMaterial,
-        ...materials[material],
-      },
-      bufferInfo,
-    };
-  });
-
-  function getExtents(positions) {
-    const min = positions.slice(0, 3);
-    const max = positions.slice(0, 3);
-    for (let i = 3; i < positions.length; i += 3) {
-      for (let j = 0; j < 3; ++j) {
-        const v = positions[i + j];
-        min[j] = Math.min(v, min[j]);
-        max[j] = Math.max(v, max[j]);
-      }
-    }
-    return { min, max };
-  }
-
-  function getGeometriesExtents(geometries) {
-    return geometries.reduce(
-      ({ min, max }, { data }) => {
-        const minMax = getExtents(data.position);
-        return {
-          min: min.map((min, ndx) => Math.min(minMax.min[ndx], min)),
-          max: max.map((max, ndx) => Math.max(minMax.max[ndx], max)),
-        };
-      },
-      {
-        min: Array(3).fill(Number.POSITIVE_INFINITY),
-        max: Array(3).fill(Number.NEGATIVE_INFINITY),
-      }
-    );
-  }
-
-  const extents = getGeometriesExtents(obj.geometries);
-  const range = m4.subtractVectors(extents.max, extents.min);
-  // amount to move the object so its center is at the origin
-  const objOffset = m4.scaleVector(
-    m4.addVectors(extents.min, m4.scaleVector(range, 0.5)),
-    -1
-  );
 
   render = () => {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -192,8 +140,8 @@ var meshProgramInfo;
       controls.near,
       controls.far
     );
+
     let modelMatrix = m4.identity();
-    modelMatrix = m4.translate(modelMatrix, ...objOffset);
     const modelViewMatrix = m4.multiply(viewMatrix, modelMatrix);
 
     lightPosition = [
@@ -222,20 +170,25 @@ var meshProgramInfo;
 
     webglUtils.setUniforms(meshProgramInfo, sharedUniforms);
 
-    for (const { bufferInfo, material } of parts) {
-      // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
-      webglUtils.setBuffersAndAttributes(gl, meshProgramInfo, bufferInfo);
-      // calls gl.uniform
-      webglUtils.setUniforms(
-        meshProgramInfo,
-        {
-          u_model: modelMatrix,
-        },
-        material
-      );
-      console.log(material);
-      // calls gl.drawArrays or gl.drawElements
-      webglUtils.drawBufferInfo(gl, bufferInfo);
+    // Iterate over the objects to render
+    for (let obj of objects) {
+      for (const { bufferInfo, material } of obj.parts) {
+        gl.useProgram(obj.meshProgramInfo.program);
+        webglUtils.setUniforms(obj.meshProgramInfo, sharedUniforms);
+
+        // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+        webglUtils.setBuffersAndAttributes(gl, obj.meshProgramInfo, bufferInfo);
+        // calls gl.uniform
+        webglUtils.setUniforms(
+          obj.meshProgramInfo,
+          {
+            u_model: obj.modelMatrix,
+          },
+          material
+        );
+        // calls gl.drawArrays or gl.drawElements
+        webglUtils.drawBufferInfo(gl, bufferInfo);
+      }
     }
 
     // requestAnimationFrame(render);
