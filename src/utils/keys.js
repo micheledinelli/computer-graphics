@@ -40,7 +40,7 @@ function mouseMove(event) {
   dY *= 0.5;
 
   controls.theta -= dX;
-  if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {
+  if (controls.phi + dY >= 0.1 && controls.phi + dY <= Math.PI / 2 - 0.1) {
     controls.phi += dY;
   }
 

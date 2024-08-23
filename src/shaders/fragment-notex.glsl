@@ -55,24 +55,12 @@ void main() {
 
     specularExp = pow(specAngle, shininess);
   }
-
-  // If the texture is used
-  // vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
-  // vec3 effectiveDiffuse = diffuseColor * diffuseMapColor.rgb;
   
   // If the texture is not used
   vec3 effectiveDiffuse = diffuse * v_color.rgb;
   
   vec4 specularMapColor = texture2D(specularMap, v_texcoord);
   vec3 effectiveSpecular = (specularColor * specularMapColor.rgb) * specularExp;
-
-  // More appealing but fake 
-  // float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-  // gl_FragColor = vec4(emissive + 
-  //                     ambientColor * u_ambientLight +
-  //                     effectiveDiffuse * fakeLight +
-  //                     effectiveSpecular * specular,
-  //                     1.0);
 
   gl_FragColor = vec4(emissive +
                       Ka * ambientColor +

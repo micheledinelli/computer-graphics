@@ -8,15 +8,15 @@ var controls = {
 };
 
 var lightControls = {
-  lightPositionX: 1.0,
-  lightPositionY: 1.0,
-  lightPositionZ: -1.0,
+  lightPositionX: -6.0,
+  lightPositionY: 3.0,
+  lightPositionZ: -8.0,
   Ka: 0.7,
   Kd: 0.7,
   Ks: 1.0,
   shininess: 80.0,
-  ambientColor: [52, 25, 0],
-  diffuseColor: [217, 184, 151],
+  ambientColor: [42.49, 26.49, 11.66],
+  diffuseColor: [255, 255, 255],
   specularColor: [123, 123, 123],
 };
 
