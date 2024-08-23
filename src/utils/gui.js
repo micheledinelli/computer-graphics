@@ -8,9 +8,9 @@ var controls = {
 };
 
 var lightControls = {
-  lightPositionX: -6.0,
-  lightPositionY: 3.0,
-  lightPositionZ: -8.0,
+  lightPositionX: 1.0,
+  lightPositionY: 1.0,
+  lightPositionZ: -1.0,
   Ka: 0.7,
   Kd: 0.7,
   Ks: 1.0,

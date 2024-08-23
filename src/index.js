@@ -14,7 +14,7 @@ const at = [0, 0, 0];
 const up = [0, 1, 0];
 var lightPosition = lightControls.lightPosition
   ? lightControls.lightPosition
-  : [-3, 6, -8];
+  : [1, 1, -1];
 
 var cubeUniforms = {
   u_model: m4.identity(),
@@ -96,7 +96,12 @@ var meshProgramInfo;
     {
       href: "data/chair/chair.obj",
       modelMatrix: m4.scale(
-        m4.translate(m4.yRotate(m4.identity(), degToRad(-30)), -0.5, 0.02, 0.3),
+        m4.translate(
+          m4.yRotate(m4.identity(), degToRad(-30)),
+          -0.5,
+          0.02,
+          0.63
+        ),
         0.24,
         0.24,
         0.24
@@ -109,7 +114,7 @@ var meshProgramInfo;
     {
       href: "data/rack/rack.obj",
       modelMatrix: m4.scale(
-        m4.translate(m4.identity(), 1.32, 0.05, 1.4),
+        m4.translate(m4.identity(), 1.32, 0.05, 1.2),
         0.0046,
         0.0046,
         0.0046
@@ -133,17 +138,70 @@ var meshProgramInfo;
       ]),
     },
     {
-      href: "data/monstera/monstera.obj",
-      modelMatrix: m4.zRotate(
-        m4.xRotate(
-          m4.scale(m4.translate(m4.identity(), -1, 1, -0.7), 0.25, 0.25, 0.25),
-          degToRad(-90)
-        ),
-        degToRad(180)
+      href: "data/plant/plant.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), 1.3, 0.7, 1.2),
+        0.85,
+        0.85,
+        0.85
       ),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
-        fragmentShaderSourceNoTex,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/sofa/sofa.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), -1, 0, -1.6),
+        0.05,
+        0.05,
+        0.05
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/sofa/sofa.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), 0, 0, -1.6),
+        0.05,
+        0.05,
+        0.05
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/wallpaper/wallpaper.obj",
+      modelMatrix: m4.translate(
+        m4.scale(m4.identity(), 0.3, 0.3, 0.3),
+        4,
+        7,
+        5.46
+      ),
+
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/wallpaper-2/wallpaper.obj",
+      modelMatrix: m4.translate(
+        m4.yRotate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), degToRad(-90)),
+        -3,
+        11.4,
+        8.1
+      ),
+
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
       ]),
     },
   ];

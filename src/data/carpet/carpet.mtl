@@ -8,6 +8,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd background.png
-map_Ns Carpet008_2K-JPG_Roughness.jpg
-map_Bump Carpet008_2K-JPG_NormalGL.jpg
+map_Kd textures/Carpet008_2K-JPG_Color.jpg
+map_Ns textures/Carpet008_2K-JPG_Roughness.jpg
+map_Bump textures/Carpet008_2K-JPG_NormalGL.jpg
