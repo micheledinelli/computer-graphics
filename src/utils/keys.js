@@ -21,7 +21,7 @@ function onKeyDown(event) {
 }
 
 function wheel(event) {
-  const zoomSpeed = 0.1;
+  const zoomSpeed = 0.05;
   const deltaZoom = -Math.sign(event.deltaY) * zoomSpeed;
   controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 40.0));
   render();
