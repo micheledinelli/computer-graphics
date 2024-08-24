@@ -116,6 +116,7 @@ function parseOBJ(text) {
       object = unparsedArgs;
       newGeometry();
     },
+    l(parts) {},
   };
 
   const keywordRE = /(\w*)(?: )*(.*)/;

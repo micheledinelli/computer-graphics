@@ -44,6 +44,8 @@ var meshProgramInfo;
     fragmentShaderSource,
   ]);
 
+  console.log("Shaders loaded");
+
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
@@ -207,10 +209,13 @@ var meshProgramInfo;
   ];
 
   for (let objToLoad of objects) {
+    console.log("Loading object", objToLoad.href);
     let obj = await load(gl, objToLoad.href);
     objToLoad.parts = obj.parts;
     objToLoad.objOffset = obj.objOffset;
   }
+
+  console.log("Objects loaded");
 
   render = () => {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -284,5 +289,10 @@ var meshProgramInfo;
       }
     }
   };
+
+  console.log("Rendering");
+
   render();
+
+  console.log("Rendering done");
 })();

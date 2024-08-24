@@ -50,30 +50,38 @@ function mouseMove(event) {
 
 var lastTouchX = 0;
 var lastTouchY = 0;
+var isPinching = false;
+var initialDistance = 0;
 function touchMove(event) {
-  if (!moveCamera || event.touches.length !== 1) {
-    return false;
+  if (event.touches.length === 1 && moveCamera) {
+    const touch = event.touches[0];
+
+    // Calculate the deltas based on the current touch positions
+    let dX = (-(touch.screenX - lastTouchX) * 2 * Math.PI) / canvas.width;
+    let dY = (-(touch.screenY - lastTouchY) * 2 * Math.PI) / canvas.height;
+
+    // Scale down the rotation speed
+    dX *= 0.05;
+    dY *= 0.05;
+
+    controls.theta += dX;
+    if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {
+      controls.phi += dY;
+    }
+
+    lastTouchX = touch.screenX;
+    lastTouchY = touch.screenY;
+    event.preventDefault();
+    render();
+  } else if (event.touches.length === 2 && isPinching) {
+    const currentDistance = getDistance(event.touches[0], event.touches[1]);
+    const delta = distance - initialDistance;
+    const zoomSpeed = 0.05;
+    const deltaZoom = -Math.sign(delta) * zoomSpeed;
+    controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 40.0));
+    initialDistance = currentDistance;
+    render();
   }
-
-  const touch = event.touches[0];
-
-  // Calculate the deltas based on the current touch positions
-  let dX = (-(touch.screenX - lastTouchX) * 2 * Math.PI) / canvas.width;
-  let dY = (-(touch.screenY - lastTouchY) * 2 * Math.PI) / canvas.height;
-
-  // Scale down the rotation speed
-  dX *= 0.05;
-  dY *= 0.05;
-
-  controls.theta += dX;
-  if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {
-    controls.phi += dY;
-  }
-
-  lastTouchX = touch.screenX;
-  lastTouchY = touch.screenY;
-  event.preventDefault();
-  render();
 }
 
 // Bind events to the canvas
@@ -91,8 +99,24 @@ canvas.addEventListener("touchstart", (event) => {
   lastTouchX = event.touches[0].screenX;
   lastTouchY = event.touches[0].screenY;
   moveCamera = true;
+
+  if (event.touches.length === 2) {
+    isPinching = true;
+    initialDistance = getDistance(event.touches[0], event.touches[1]);
+  }
 });
 canvas.addEventListener("touchmove", touchMove);
-canvas.addEventListener("touchend", () => {
+canvas.addEventListener("touchend", (event) => {
   moveCamera = false;
+
+  if (isPinching && event.touches.length < 2) {
+    isPinching = false;
+    initialDistance = null;
+  }
 });
+
+function getDistance(touch1, touch2) {
+  const dx = touch2.clientX - touch1.clientX;
+  const dy = touch2.clientY - touch1.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
