@@ -393,7 +393,7 @@ async function load(gl, objHref) {
   }
 
   Object.values(materials).forEach((m) => {
-    m.shininess = 25;
+    m.shininess = m.shininess || 300;
     m.specular = [3, 2, 1];
   });
 

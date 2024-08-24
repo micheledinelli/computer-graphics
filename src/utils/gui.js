@@ -1,19 +1,19 @@
 var controls = {
   near: 1,
   far: 100,
-  D: 12,
+  D: 10,
   theta: 2.4,
   phi: 0.47,
   fovy: 40.0,
 };
 
 var lightControls = {
-  lightPositionX: 1.0,
-  lightPositionY: 1.0,
-  lightPositionZ: -1.0,
+  lightPositionX: 1.3,
+  lightPositionY: 2.4,
+  lightPositionZ: -1.69,
   Ka: 0.7,
   Kd: 0.7,
-  Ks: 1.0,
+  Ks: 0.3,
   // shininess: 80.0,
   ambientColor: [42.49, 26.49, 11.66],
   diffuseColor: [255, 255, 255],
@@ -139,6 +139,7 @@ var lightControls = {
     .max(10)
     .step(1)
     .onChange(function () {
+      updateLightPosition();
       render();
     });
 
@@ -148,6 +149,7 @@ var lightControls = {
     .max(10)
     .step(1)
     .onChange(function () {
+      updateLightPosition();
       render();
     });
 
@@ -157,6 +159,7 @@ var lightControls = {
     .max(10)
     .step(1)
     .onChange(function () {
+      updateLightPosition();
       render();
     });
 
@@ -169,4 +172,20 @@ function normalizeRGBVector(rgb) {
     return [0, 0, 0];
   }
   return rgb.map((component) => component / 255);
+}
+
+function updateLightPosition() {
+  // Reset the model matrix to the identity matrix before applying translation
+  objects[0].modelMatrix = m4.identity();
+
+  // Apply the translation to move the light source object to the new light position
+  objects[0].modelMatrix = m4.translate(
+    objects[0].modelMatrix,
+    lightControls.lightPositionX,
+    lightControls.lightPositionY,
+    lightControls.lightPositionZ
+  );
+
+  // Scale the light source object to make it smaller
+  objects[0].modelMatrix = m4.scale(objects[0].modelMatrix, 0.1, 0.1, 0.1);
 }

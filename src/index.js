@@ -14,13 +14,9 @@ const at = [0, 0, 0];
 const up = [0, 1, 0];
 var lightPosition = lightControls.lightPosition
   ? lightControls.lightPosition
-  : [1, 1, -1];
+  : [1.3, 2.4, -1.6];
 
-var cubeUniforms = {
-  u_model: m4.identity(),
-};
-
-var meshProgramInfo;
+var objects;
 
 (async function main() {
   canvas = document.getElementById("canvas");
@@ -39,17 +35,20 @@ var meshProgramInfo;
     "shaders/fragment-notex.glsl"
   );
 
-  meshProgramInfo = webglUtils.createProgramInfo(gl, [
-    vertexShaderSource,
-    fragmentShaderSource,
-  ]);
-
-  console.log("Shaders loaded");
-
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
-
-  let objects = [
+  objects = [
+    {
+      href: "data/sphere.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), 1.3, 2.4, -1.6),
+        0.05,
+        0.05,
+        0.05
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
+      ]),
+    },
     {
       href: "data/desk/desk.obj",
       modelMatrix: m4.translate(
@@ -63,30 +62,6 @@ var meshProgramInfo;
         fragmentShaderSourceNoTex,
       ]),
     },
-    {
-      href: "data/monitor/monitor.obj",
-      modelMatrix: m4.yRotate(
-        m4.scale(m4.translate(m4.identity(), -0.4, 1.6, 1.6), 0.05, 0.05, 0.05),
-        degToRad(90)
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSource,
-      ]),
-    },
-    // {
-    //   href: "data/avatar/cube.obj",
-    //   modelMatrix: m4.scale(
-    //     m4.translate(m4.identity(), 0.0, 3.0, 0),
-    //     0.3,
-    //     0.3,
-    //     0.3
-    //   ),
-    //   meshProgramInfo: webglUtils.createProgramInfo(gl, [
-    //     vertexShaderSource,
-    //     fragmentShaderSource,
-    //   ]),
-    // },
     {
       href: "data/iso-room/iso.obj",
       modelMatrix: m4.identity(),
@@ -140,38 +115,25 @@ var meshProgramInfo;
       ]),
     },
     {
+      href: "data/carpet/carpet.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), 1.3, 0.039, -1.5),
+        0.73,
+        0.73,
+        0.73
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
       href: "data/plant/plant.obj",
       modelMatrix: m4.scale(
         m4.translate(m4.identity(), 1.3, 0.7, 1.2),
         0.85,
         0.85,
         0.85
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSource,
-      ]),
-    },
-    {
-      href: "data/sofa/sofa.obj",
-      modelMatrix: m4.scale(
-        m4.translate(m4.identity(), -1, 0, -1.6),
-        0.05,
-        0.05,
-        0.05
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSource,
-      ]),
-    },
-    {
-      href: "data/sofa/sofa.obj",
-      modelMatrix: m4.scale(
-        m4.translate(m4.identity(), 0, 0, -1.6),
-        0.05,
-        0.05,
-        0.05
       ),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
@@ -196,7 +158,7 @@ var meshProgramInfo;
       href: "data/wallpaper-2/wallpaper.obj",
       modelMatrix: m4.translate(
         m4.yRotate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), degToRad(-90)),
-        -3,
+        3,
         11.4,
         8.1
       ),
@@ -206,7 +168,69 @@ var meshProgramInfo;
         fragmentShaderSource,
       ]),
     },
+    {
+      href: "data/avatar/avatar.obj",
+      modelMatrix: m4.translate(
+        m4.yRotate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), degToRad(-90)),
+        -4,
+        11.4,
+        8.1
+      ),
+
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/monitor/monitor.obj",
+      modelMatrix: m4.yRotate(
+        m4.translate(
+          m4.scale(m4.identity(), 0.045, 0.045, 0.045),
+          -15,
+          26,
+          33.5
+        ),
+        degToRad(90)
+      ),
+
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/lamp/lamp.obj",
+      modelMatrix: m4.translate(
+        m4.scale(m4.identity(), 1.3, 1.3, 1.3),
+        1,
+        0.05,
+        -1.8
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/big-sofa/sofa.obj",
+      modelMatrix: m4.translate(
+        m4.yRotate(m4.identity(), degToRad(180)),
+        0.8,
+        0,
+        1.2
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
   ];
+
+  console.log("Shaders loaded");
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
 
   for (let objToLoad of objects) {
     console.log("Loading object", objToLoad.href);
@@ -263,10 +287,6 @@ var meshProgramInfo;
       diffuseColor: normalizeRGBVector(lightControls.diffuseColor),
       specularColor: normalizeRGBVector(lightControls.specularColor),
     };
-
-    gl.useProgram(meshProgramInfo.program);
-
-    webglUtils.setUniforms(meshProgramInfo, sharedUniforms);
 
     // Iterate over the objects to render
     for (let obj of objects) {

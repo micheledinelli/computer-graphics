@@ -11,7 +11,6 @@ uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 
 uniform vec3 u_lightDirection;
-uniform vec3 u_ambientLight;
 
 uniform float shininess;
 
@@ -57,13 +56,11 @@ void main() {
   }
   
   // If the texture is not used
-  vec3 effectiveDiffuse = diffuse * v_color.rgb;
+  vec3 effectiveDiffuse = diffuse * v_color.rgb * diffuseColor;
+  vec3 effectiveAmbient = ambient * ambientColor;
   
-  vec4 specularMapColor = texture2D(specularMap, v_texcoord);
-  vec3 effectiveSpecular = (specularColor * specularMapColor.rgb) * specularExp;
-
   gl_FragColor = vec4(emissive +
-                      Ka * ambientColor +
+                      Ka * effectiveAmbient +
                       Kd * lambertian * effectiveDiffuse +
-                      Ks * effectiveSpecular, 1.0);
+                      Ks * specularExp * specular, 1.0);
 }
