@@ -217,6 +217,14 @@ var objects;
         fragmentShaderSource,
       ]),
     },
+    {
+      href: "data/webgl/webgl.obj",
+      modelMatrix: m4.translate(m4.identity(), -0.6, 2.5, 1.7),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
   ];
 
   console.log("Shaders loaded");
@@ -225,7 +233,6 @@ var objects;
   gl.enable(gl.CULL_FACE);
 
   for (let objToLoad of objects) {
-    console.log("Loading object", objToLoad.href);
     let obj = await load(gl, objToLoad.href);
     objToLoad.parts = obj.parts;
     objToLoad.objOffset = obj.objOffset;

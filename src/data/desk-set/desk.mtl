@@ -8,8 +8,8 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 illum 2
-map_Kd screenshot.png
-map_d screenshot.png
+map_Kd Apple_logo_grey.svg_baseColor.png
+map_d Apple_logo_grey.svg_baseColor.png
 
 newmtl Cork_Coaster
 Ns 250.000000
@@ -20,7 +20,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd Cork_Coaster_baseColor.png
-map_Bump -bm 1.000000 Cork_Coaster_normal.png
+map_Bump Cork_Coaster_normal.png
 
 newmtl Material.001
 Ns 76.279953
@@ -61,7 +61,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Bump -s 10 10 1 -bm 1.000000 Material_normal.png
+map_Bump Material_normal.png
 
 newmtl Material.005
 Ns 39.367722
@@ -262,7 +262,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_baseColor.png
-map_Bump -bm 1.000000 comp_desk_normal.png
+map_Bump comp_desk_normal.png
 
 newmtl comp_desk_1remote
 Ns 250.000000
@@ -273,7 +273,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_1remote_baseColor.png
-map_Bump -bm 1.000000 comp_desk_1remote_normal.png
+map_Bump comp_desk_1remote_normal.png
 
 newmtl comp_desk_2remote
 Ns 250.000000
@@ -284,7 +284,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_2remote_baseColor.png
-map_Bump -bm 1.000000 comp_desk_2remote_normal.png
+map_Bump comp_desk_2remote_normal.png
 
 newmtl comp_desk_a
 Ns 250.000000
@@ -295,7 +295,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_a_baseColor.png
-map_Bump -bm 1.000000 comp_desk_a_normal.png
+map_Bump comp_desk_a_normal.png
 
 newmtl comp_desk_b
 Ns 250.000000
@@ -306,7 +306,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_b_baseColor.png
-map_Bump -bm 1.000000 comp_desk_b_normal.png
+map_Bump comp_desk_b_normal.png
 
 newmtl comp_desk_button
 Ns 250.000000
@@ -317,7 +317,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_button_baseColor.png
-map_Bump -bm 1.000000 comp_desk_button_normal.png
+map_Bump comp_desk_button_normal.png
 
 newmtl comp_desk_c
 Ns 250.000000
@@ -328,7 +328,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_c_baseColor.png
-map_Bump -bm 1.000000 comp_desk_c_normal.png
+map_Bump comp_desk_c_normal.png
 
 newmtl comp_desk_remote
 Ns 250.000000
@@ -339,7 +339,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_remote_baseColor.png
-map_Bump -bm 1.000000 comp_desk_remote_normal.png
+map_Bump comp_desk_remote_normal.png
 
 newmtl comp_desk_top
 Ns 250.000000
@@ -350,7 +350,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd comp_desk_top_baseColor.png
-map_Bump -bm 1.000000 comp_desk_top_normal.png
+map_Bump comp_desk_top_normal.png
 
 newmtl keys
 Ns 321.193054
@@ -371,7 +371,7 @@ d 1.000000
 illum 2
 map_Kd lambert1_baseColor.jpeg
 map_Ke lambert1_emissive.jpeg
-map_Bump -bm 1.000000 lambert1_normal.png
+map_Bump lambert1_normal.png
 
 newmtl screen_black
 Ns 912.024963
@@ -381,7 +381,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd Screenshot 2024-08-25 at 12.15.00.png
+map_Kd screenshot-blender.png
 
 newmtl screen_black.001
 Ns 942.351685

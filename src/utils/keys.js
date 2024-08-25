@@ -1,5 +1,6 @@
 function onKeyDown(event) {
   var dr = (5.0 * Math.PI) / 180.0;
+  var moveStep = 0.2;
 
   switch (event.key) {
     case "ArrowUp":
@@ -17,6 +18,7 @@ function onKeyDown(event) {
     default:
       break;
   }
+
   render();
 }
 
