@@ -36,19 +36,19 @@ var objects;
   );
 
   objects = [
-    {
-      href: "data/sphere.obj",
-      modelMatrix: m4.scale(
-        m4.translate(m4.identity(), 1.3, 2.4, -1.6),
-        0.05,
-        0.05,
-        0.05
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSourceNoTex,
-      ]),
-    },
+    // {
+    //   href: "data/sphere.obj",
+    //   modelMatrix: m4.scale(
+    //     m4.translate(m4.identity(), 1.3, 2.4, -1.6),
+    //     0.05,
+    //     0.05,
+    //     0.05
+    //   ),
+    //   meshProgramInfo: webglUtils.createProgramInfo(gl, [
+    //     vertexShaderSource,
+    //     fragmentShaderSourceNoTex,
+    //   ]),
+    // },
     {
       href: "data/desk/desk.obj",
       modelMatrix: m4.translate(
@@ -65,24 +65,6 @@ var objects;
     {
       href: "data/iso-room/iso.obj",
       modelMatrix: m4.identity(),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSourceNoTex,
-      ]),
-    },
-    {
-      href: "data/chair/chair.obj",
-      modelMatrix: m4.scale(
-        m4.translate(
-          m4.yRotate(m4.identity(), degToRad(-30)),
-          -0.5,
-          0.02,
-          0.63
-        ),
-        0.24,
-        0.24,
-        0.24
-      ),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSourceNoTex,
@@ -184,16 +166,7 @@ var objects;
     },
     {
       href: "data/monitor/monitor.obj",
-      modelMatrix: m4.yRotate(
-        m4.translate(
-          m4.scale(m4.identity(), 0.045, 0.045, 0.045),
-          -15,
-          26,
-          33.5
-        ),
-        degToRad(90)
-      ),
-
+      modelMatrix: m4.translate(m4.identity(), -0.6, 0.98, 1.25),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSource,
@@ -219,6 +192,47 @@ var objects;
         0.8,
         0,
         1.2
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/notebook/notebook.obj",
+      modelMatrix: m4.yRotate(
+        m4.translate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), 1.7, 2.2, -8.5),
+        degToRad(30)
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/birken/birken.obj",
+      modelMatrix: m4.yRotate(
+        m4.translate(m4.identity(), 2.4, -0.55, 2.2),
+        degToRad(-90)
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/mug/mug.obj",
+      modelMatrix: m4.translate(m4.identity(), -1.3, 1.15, 1.2),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/chair/chair.obj",
+      modelMatrix: m4.yRotate(
+        m4.translate(m4.identity(), -0.6, 0.02, 0.2),
+        degToRad(40)
       ),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
