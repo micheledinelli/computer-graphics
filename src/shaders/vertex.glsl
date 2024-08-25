@@ -20,8 +20,6 @@ void main()
     vec4 v_position4 = u_view * u_model * a_position;
     v_position = vec3(v_position4) / v_position4.w;
     
-    // v_normal = vec3(u_modelViewTranspose * vec4(a_normal, 0.0));
-    
     mat3 normalMat = mat3(u_modelViewTranspose);
     v_normal = normalize(normalMat * a_normal);
     v_tangent = normalize(normalMat * a_tangent);

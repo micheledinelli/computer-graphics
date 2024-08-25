@@ -5,6 +5,8 @@ var controls = {
   theta: 2.4,
   phi: 0.47,
   fovy: 40.0,
+  cameraDx: 0,
+  cameraDy: 0,
 };
 
 var lightControls = {

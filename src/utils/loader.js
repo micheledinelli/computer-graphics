@@ -394,7 +394,7 @@ async function load(gl, objHref) {
 
   Object.values(materials).forEach((m) => {
     m.shininess = m.shininess || 300;
-    m.specular = [3, 2, 1];
+    m.specular = m.specular || [3, 2, 1];
   });
 
   const defaultMaterial = {

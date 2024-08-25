@@ -1,6 +1,5 @@
 function onKeyDown(event) {
   var dr = (5.0 * Math.PI) / 180.0;
-  var moveStep = 0.2;
 
   switch (event.key) {
     case "ArrowUp":
@@ -14,6 +13,18 @@ function onKeyDown(event) {
       break;
     case "ArrowLeft":
       controls.theta -= dr;
+      break;
+    case "w":
+      controls.cameraDy += 0.1;
+      break;
+    case "s":
+      controls.cameraDy -= 0.1;
+      break;
+    case "a":
+      controls.cameraDx -= 0.1;
+      break;
+    case "d":
+      controls.cameraDx += 0.1;
       break;
     default:
       break;
@@ -63,8 +74,8 @@ function touchMove(event) {
     let dY = (-(touch.screenY - lastTouchY) * 2 * Math.PI) / canvas.height;
 
     // Scale down the rotation speed
-    dX *= 0.05;
-    dY *= 0.05;
+    dX *= 0.5;
+    dY *= 0.5;
 
     controls.theta += dX;
     if (controls.phi + dY >= 0 && controls.phi + dY <= Math.PI) {

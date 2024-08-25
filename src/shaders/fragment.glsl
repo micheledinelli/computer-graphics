@@ -10,26 +10,26 @@ uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 
-uniform vec3 u_lightDirection;
+uniform vec3 u_lightPosition;
 uniform vec3 u_ambientLight;
 
 uniform float shininess;
 
-uniform vec3 emissive;
-uniform vec3 ambient;
-uniform vec3 diffuse;
-uniform vec3 specular;
+uniform vec3 emissive; // Set by the parser
+uniform vec3 ambient; // Set by the parser
+uniform vec3 diffuse; // Set by the parser
+uniform vec3 specular; // Set by the parser
 
-uniform vec3 ambientColor;
-uniform vec3 diffuseColor;
-uniform vec3 specularColor;
+uniform vec3 ambientColor; // Set as shared uniform
+uniform vec3 diffuseColor; // Set as shared uniform
+uniform vec3 specularColor; // Set as shared uniform
 uniform float Ka;   // Ambient reflection coefficient
 uniform float Kd;   // Diffuse reflection coefficient
 uniform float Ks;   // Specular reflection coefficient
 
 void main() {
   vec3 normal = normalize(v_normal);
-  vec3 L = normalize(u_lightDirection - v_position);
+  vec3 L = normalize(u_lightPosition - v_position);
   
   // From https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html
   vec3 tangent = normalize(v_tangent);

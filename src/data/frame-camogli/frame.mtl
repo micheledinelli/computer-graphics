@@ -1,22 +1,22 @@
 # Blender 4.1.1 MTL File: 'None'
 # www.blender.org
 
-newmtl FRAME.002
-Ns 159.999985
+newmtl FRAME
+Ns 360.000000
 Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
+Ks 0.075000 0.075000 0.075000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd FRAME_baseColor.jpeg
+map_Kd camogli.png
 
-newmtl PRINT.002
-Ns 39.999996
+newmtl PRINT
+Ns 902.500000
 Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
+Ks 0.100000 0.100000 0.100000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd FRAME_baseColor.jpeg
+map_Kd camogli.png

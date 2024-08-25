@@ -10,7 +10,7 @@ uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 
-uniform vec3 u_lightDirection;
+uniform vec3 u_lightPosition;
 
 uniform float shininess;
 
@@ -28,15 +28,15 @@ uniform float Ks;   // Specular reflection coefficient
 
 void main() {
   vec3 normal = normalize(v_normal);
-  vec3 L = normalize(u_lightDirection - v_position);
+  vec3 L = normalize(u_lightPosition - v_position);
   
   // From https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html
-  vec3 tangent = normalize(v_tangent);
-  vec3 bitangent = normalize(cross(normal, tangent));
-  mat3 tbn = mat3(tangent, bitangent, normal);
+  // vec3 tangent = normalize(v_tangent);
+  // vec3 bitangent = normalize(cross(normal, tangent));
+  // mat3 tbn = mat3(tangent, bitangent, normal);
 
-  normal = texture2D(normalMap, v_texcoord).rgb * 2. - 1.;
-  normal = normalize(tbn * normal);
+  // normal = texture2D(normalMap, v_texcoord).rgb * 2. - 1.;
+  // normal = normalize(tbn * normal);
 
   // From http://www.cs.toronto.edu/~jacobson/phong-demo/ Phong shading
   // Lambert's cosine law

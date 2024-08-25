@@ -12,9 +12,7 @@ var render;
 var eye;
 const at = [0, 0, 0];
 const up = [0, 1, 0];
-var lightPosition = lightControls.lightPosition
-  ? lightControls.lightPosition
-  : [1.3, 2.4, -1.6];
+var lightPosition = [1.3, 2.4, -1.6];
 
 var objects;
 
@@ -36,18 +34,19 @@ var objects;
   );
 
   objects = [
-    // {
-    //   href: "data/sphere.obj",
-    //   modelMatrix: m4.scale(
-    //     m4.translate(m4.identity(), 1.3, 2.4, -1.6),
-    //     0.05,
-    //     0.05,
-    //     0.05
-    //   ),
-    //   meshProgramInfo: webglUtils.createProgramInfo(gl, [
-    //     vertexShaderSource,
-    //     fragmentShaderSourceNoTex,
-    //   ]),
+    {
+      href: "data/sphere.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), 1.3, 2.4, -1.65),
+        0.05,
+        0.05,
+        0.05
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
+      ]),
+    },
     {
       href: "data/iso-room/iso.obj",
       modelMatrix: m4.identity(),
@@ -109,28 +108,16 @@ var objects;
       ]),
     },
     {
-      href: "data/wallpaper/wallpaper.obj",
-      modelMatrix: m4.translate(
-        m4.scale(m4.identity(), 0.3, 0.3, 0.3),
-        4,
-        7,
-        5.46
-      ),
-
+      href: "data/frame-camogli/frame.obj",
+      modelMatrix: m4.translate(m4.identity(), 1.2, 2.1, 1.4),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSource,
       ]),
     },
     {
-      href: "data/wallpaper-2/wallpaper.obj",
-      modelMatrix: m4.translate(
-        m4.yRotate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), degToRad(-90)),
-        3,
-        11.4,
-        8.1
-      ),
-
+      href: "data/frame-berlin/frame.obj",
+      modelMatrix: m4.translate(m4.identity(), -1.45, 2, 0.75),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSource,
@@ -139,12 +126,11 @@ var objects;
     {
       href: "data/avatar/avatar.obj",
       modelMatrix: m4.translate(
-        m4.yRotate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), degToRad(-90)),
-        -4,
-        11.4,
-        8.1
+        m4.scale(m4.identity(), 0.35, 0.35, 0.35),
+        -4.15,
+        5.8,
+        -2
       ),
-
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSource,
@@ -165,12 +151,7 @@ var objects;
     },
     {
       href: "data/big-sofa/sofa.obj",
-      modelMatrix: m4.translate(
-        m4.yRotate(m4.identity(), degToRad(180)),
-        0.8,
-        0,
-        1.2
-      ),
+      modelMatrix: m4.translate(m4.identity(), -0.4, -0.05, -1.35),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSource,
@@ -225,12 +206,21 @@ var objects;
         fragmentShaderSource,
       ]),
     },
+    {
+      href: "data/outlet/outlet.obj",
+      modelMatrix: m4.translate(m4.identity(), 0, 0.3, 1.4),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
+      ]),
+    },
   ];
 
   console.log("Shaders loaded");
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
 
   for (let objToLoad of objects) {
     let obj = await load(gl, objToLoad.href);
@@ -244,12 +234,11 @@ var objects;
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
 
     eye = [
-      controls.D * Math.cos(controls.phi) * Math.sin(controls.theta),
-      controls.D * Math.sin(controls.phi),
+      controls.D * Math.cos(controls.phi) * Math.sin(controls.theta) +
+        controls.cameraDx,
+      controls.D * Math.sin(controls.phi) + controls.cameraDy,
       controls.D * Math.cos(controls.phi) * Math.cos(controls.theta),
     ];
 
@@ -263,17 +252,18 @@ var objects;
     );
 
     let modelMatrix = m4.identity();
-    const modelViewMatrix = m4.multiply(viewMatrix, modelMatrix);
+    let modelViewMatrix = m4.multiply(viewMatrix, modelMatrix);
 
     lightPosition = [
       lightControls.lightPositionX,
       lightControls.lightPositionY,
       lightControls.lightPositionZ,
     ];
-    m4.normalize(lightPosition);
+    let lightPositionEyeSpace = m4.transformPoint(viewMatrix, lightPosition);
+    // m4.normalize(lightPosition);
 
     const sharedUniforms = {
-      u_lightDirection: lightPosition,
+      u_lightPosition: lightPositionEyeSpace,
       u_model: modelMatrix,
       u_view: viewMatrix,
       u_projection: projectionMatrix,
