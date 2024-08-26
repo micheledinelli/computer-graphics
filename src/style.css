@@ -94,3 +94,24 @@ audio {
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
 }
+
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 30px;
+  background-color: #121212;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+#loading-bar {
+  width: 0%;
+  height: 100%;
+  background-color: white;
+  transition: width 0.3s ease;
+  border-radius: 10px 0 0 10px;
+}

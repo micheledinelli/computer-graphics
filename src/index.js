@@ -33,6 +33,9 @@ var objects;
     "shaders/fragment-notex.glsl"
   );
 
+  console.log("Shaders loaded");
+  updateLoadingBar(0.2);
+
   objects = [
     {
       href: "data/sphere.obj",
@@ -221,8 +224,6 @@ var objects;
     },
   ];
 
-  console.log("Shaders loaded");
-
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
   gl.cullFace(gl.BACK);
@@ -231,9 +232,13 @@ var objects;
     let obj = await load(gl, objToLoad.href);
     objToLoad.parts = obj.parts;
     objToLoad.objOffset = obj.objOffset;
+
+    // Update loading bar for each object loaded
+    updateLoadingBar(0.8 / objects.length);
   }
 
   console.log("Objects loaded");
+  updateLoadingBar(0.2);
 
   render = () => {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
