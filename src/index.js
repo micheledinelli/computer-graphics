@@ -160,7 +160,12 @@ var objects;
     {
       href: "data/notebook/notebook.obj",
       modelMatrix: m4.yRotate(
-        m4.translate(m4.scale(m4.identity(), 0.18, 0.18, 0.18), 1.7, 2.2, -8.5),
+        m4.translate(
+          m4.scale(m4.identity(), 0.18, 0.18, 0.18),
+          -3.3,
+          2.5,
+          -8.5
+        ),
         degToRad(30)
       ),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
@@ -234,6 +239,9 @@ var objects;
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
 
     eye = [
       controls.D * Math.cos(controls.phi) * Math.sin(controls.theta) +
