@@ -14,18 +14,6 @@ function onKeyDown(event) {
     case "ArrowLeft":
       controls.theta -= dr;
       break;
-    case "w":
-      controls.cameraDy += 0.1;
-      break;
-    case "s":
-      controls.cameraDy -= 0.1;
-      break;
-    case "a":
-      controls.cameraDx -= 0.1;
-      break;
-    case "d":
-      controls.cameraDx += 0.1;
-      break;
     default:
       break;
   }

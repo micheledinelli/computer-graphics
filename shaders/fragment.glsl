@@ -11,12 +11,12 @@ uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 
 uniform vec3 u_lightPosition;
-uniform vec3 u_ambientLight;
+uniform float u_lightIntensity;
+uniform float u_attenuationFactor; 
 
-uniform int u_bumpEnabled;
+uniform float u_shininess;
 
-uniform float shininess;
-
+uniform float shininess; // Set by the parser 
 uniform vec3 emissive; // Set by the parser
 uniform vec3 ambient; // Set by the parser
 uniform vec3 diffuse; // Set by the parser
@@ -29,10 +29,17 @@ uniform float Ka;   // Ambient reflection coefficient
 uniform float Kd;   // Diffuse reflection coefficient
 uniform float Ks;   // Specular reflection coefficient
 
+uniform int u_bumpEnabled; // Flag to enable bump mapping
+
 void main() {
   vec3 normal = normalize(v_normal);
-  vec3 L = normalize(u_lightPosition - v_position);
+  vec3 lightDir = u_lightPosition - v_position;
+  float distance = length(lightDir);
+  vec3 L = normalize(lightDir);
   
+  // Light attenuation
+  float attenuation = 1.0 / (1.0 + u_attenuationFactor * distance * distance);
+
   // From https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html
   if (u_bumpEnabled == 1) {
     vec3 tangent = normalize(v_tangent);
@@ -57,29 +64,21 @@ void main() {
     // Compute the specular term
     float specAngle = max(dot(R, V), 0.0);
 
-    specularExp = pow(specAngle, shininess);
+    specularExp = pow(specAngle, u_shininess);
   }
 
-  // If the texture is used
   vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
   vec3 effectiveDiffuse = diffuseColor * diffuseMapColor.rgb;
-  
-  // If the texture is not used
-  // vec3 effectiveDiffuse = diffuse * v_color.rgb;
   
   vec4 specularMapColor = texture2D(specularMap, v_texcoord);
   vec3 effectiveSpecular = (specularColor * specularMapColor.rgb) * specularExp;
 
-  // More appealing but fake 
-  // float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-  // gl_FragColor = vec4(emissive + 
-  //                     ambientColor * u_ambientLight +
-  //                     effectiveDiffuse * fakeLight +
-  //                     effectiveSpecular * specular,
-  //                     1.0);
+  // Apply attenuation to diffuse and specular components
+  vec3 attenuatedDiffuse = lambertian * effectiveDiffuse * attenuation * u_lightIntensity;
+  vec3 attenuatedSpecular = effectiveSpecular * attenuation * u_lightIntensity;
 
   gl_FragColor = vec4(emissive +
                       Ka * ambientColor +
-                      Kd * lambertian * effectiveDiffuse +
-                      Ks * effectiveSpecular, 1.0);
+                      Kd * attenuatedDiffuse +
+                      Ks * attenuatedSpecular, 1.0);
 }

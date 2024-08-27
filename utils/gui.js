@@ -5,8 +5,6 @@ var controls = {
   theta: 2.4,
   phi: 0.47,
   fovy: 40.0,
-  cameraDx: 0,
-  cameraDy: 0,
 };
 
 var advancedRenderingControls = {
@@ -14,13 +12,15 @@ var advancedRenderingControls = {
 };
 
 var lightControls = {
-  lightPositionX: 1.3,
-  lightPositionY: 2.4,
-  lightPositionZ: -1.69,
+  //   lightPositionX: 1.3,
+  //   lightPositionY: 2.4,
+  //   lightPositionZ: -1.69,
   Ka: 0.7,
   Kd: 0.7,
   Ks: 0.3,
-  // shininess: 80.0,
+  shininess: 3.0,
+  lightIntensity: 1,
+  attenuationFactor: 0.01,
   ambientColor: [42.49, 26.49, 11.66],
   diffuseColor: [255, 255, 255],
   specularColor: [123, 123, 123],
@@ -112,14 +112,32 @@ var lightControls = {
       render();
     });
 
-  // lightFolder
-  //   .add(lightControls, "shininess")
-  //   .min(0)
-  //   .max(100)
-  //   .step(1)
-  //   .onChange(function () {
-  //     render();
-  //   });
+  lightFolder
+    .add(lightControls, "shininess")
+    .min(0)
+    .max(10)
+    .step(0.5)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "lightIntensity")
+    .min(0)
+    .max(10)
+    .step(0.1)
+    .onChange(function () {
+      render();
+    });
+
+  lightFolder
+    .add(lightControls, "attenuationFactor")
+    .min(0)
+    .max(1)
+    .step(0.1)
+    .onChange(function () {
+      render();
+    });
 
   lightFolder
     .addColor(lightControls, "ambientColor")
@@ -139,36 +157,6 @@ var lightControls = {
       render();
     });
 
-  lightFolder
-    .add(lightControls, "lightPositionX")
-    .min(-10)
-    .max(10)
-    .step(1)
-    .onChange(function () {
-      updateLightPosition();
-      render();
-    });
-
-  lightFolder
-    .add(lightControls, "lightPositionY")
-    .min(-10)
-    .max(10)
-    .step(1)
-    .onChange(function () {
-      updateLightPosition();
-      render();
-    });
-
-  lightFolder
-    .add(lightControls, "lightPositionZ")
-    .min(-10)
-    .max(10)
-    .step(1)
-    .onChange(function () {
-      updateLightPosition();
-      render();
-    });
-
   var advancedRenderingFolder = gui.addFolder("Advanced rendering");
 
   advancedRenderingFolder
@@ -178,6 +166,7 @@ var lightControls = {
     });
 
   lightFolder.closed = true;
+  advancedRenderingFolder.closed = true;
   gui.closed = true;
 })();
 
@@ -186,20 +175,4 @@ function normalizeRGBVector(rgb) {
     return [0, 0, 0];
   }
   return rgb.map((component) => component / 255);
-}
-
-function updateLightPosition() {
-  // Reset the model matrix to the identity matrix before applying translation
-  objects[0].modelMatrix = m4.identity();
-
-  // Apply the translation to move the light source object to the new light position
-  objects[0].modelMatrix = m4.translate(
-    objects[0].modelMatrix,
-    lightControls.lightPositionX,
-    lightControls.lightPositionY,
-    lightControls.lightPositionZ
-  );
-
-  // Scale the light source object to make it smaller
-  objects[0].modelMatrix = m4.scale(objects[0].modelMatrix, 0.1, 0.1, 0.1);
 }

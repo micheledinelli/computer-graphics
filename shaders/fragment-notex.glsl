@@ -11,9 +11,12 @@ uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 
 uniform vec3 u_lightPosition;
+uniform float u_lightIntensity;
+uniform float u_attenuationFactor;
+
+uniform float u_shininess;
 
 uniform float shininess;
-
 uniform vec3 emissive;
 uniform vec3 ambient;
 uniform vec3 diffuse;
@@ -28,15 +31,12 @@ uniform float Ks;   // Specular reflection coefficient
 
 void main() {
   vec3 normal = normalize(v_normal);
-  vec3 L = normalize(u_lightPosition - v_position);
+  vec3 lightDir = u_lightPosition - v_position;
+  float distance = length(lightDir);
+  vec3 L = normalize(lightDir);
   
-  // From https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html
-  // vec3 tangent = normalize(v_tangent);
-  // vec3 bitangent = normalize(cross(normal, tangent));
-  // mat3 tbn = mat3(tangent, bitangent, normal);
-
-  // normal = texture2D(normalMap, v_texcoord).rgb * 2. - 1.;
-  // normal = normalize(tbn * normal);
+  // Light attenuation
+  float attenuation = 1.0 / (1.0 + u_attenuationFactor * distance * distance);
 
   // From http://www.cs.toronto.edu/~jacobson/phong-demo/ Phong shading
   // Lambert's cosine law
@@ -52,15 +52,18 @@ void main() {
     // Compute the specular term
     float specAngle = max(dot(R, V), 0.0);
 
-    specularExp = pow(specAngle, shininess);
+    specularExp = pow(specAngle, u_shininess);
   }
   
-  // If the texture is not used
   vec3 effectiveDiffuse = diffuse * v_color.rgb * diffuseColor;
   vec3 effectiveAmbient = ambient * ambientColor;
-  
+  vec3 effectiveSpecular = (specularColor * specular) * specularExp;
+
+  vec3 attenuatedDiffuse = lambertian * effectiveDiffuse * attenuation * u_lightIntensity;
+  vec3 attenuatedSpecular = effectiveSpecular * attenuation * u_lightIntensity;
+
   gl_FragColor = vec4(emissive +
                       Ka * effectiveAmbient +
-                      Kd * lambertian * effectiveDiffuse +
-                      Ks * specularExp * specular, 1.0);
+                      Kd * attenuatedDiffuse +
+                      Ks * attenuatedSpecular, 1.0);
 }

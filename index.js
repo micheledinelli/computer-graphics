@@ -12,7 +12,7 @@ var render;
 var eye;
 const at = [0, 0, 0];
 const up = [0, 1, 0];
-var lightPosition = [1.3, 2.4, -1.6];
+var lightPosition = [0.2, 2, -1];
 
 var objects;
 
@@ -37,19 +37,14 @@ var objects;
   updateLoadingBar(0.2);
 
   objects = [
-    {
-      href: "data/sphere.obj",
-      modelMatrix: m4.scale(
-        m4.translate(m4.identity(), 1.3, 2.4, -1.65),
-        0.05,
-        0.05,
-        0.05
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSourceNoTex,
-      ]),
-    },
+    // {
+    //   href: "data/sphere.obj",
+    //   modelMatrix: m4.translate(m4.identity(), 0.2, 2, -1),
+    //   meshProgramInfo: webglUtils.createProgramInfo(gl, [
+    //     vertexShaderSource,
+    //     fragmentShaderSourceNoTex,
+    //   ]),
+    // },
     {
       href: "data/iso-room/iso.obj",
       modelMatrix: m4.identity(),
@@ -140,19 +135,6 @@ var objects;
       ]),
     },
     {
-      href: "data/lamp/lamp.obj",
-      modelMatrix: m4.translate(
-        m4.scale(m4.identity(), 1.3, 1.3, 1.3),
-        1,
-        0.05,
-        -1.8
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSource,
-      ]),
-    },
-    {
       href: "data/big-sofa/sofa.obj",
       modelMatrix: m4.translate(m4.identity(), -0.4, -0.05, -1.35),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
@@ -222,6 +204,14 @@ var objects;
         fragmentShaderSourceNoTex,
       ]),
     },
+    {
+      href: "data/floor-lamp/floor-lamp.obj",
+      modelMatrix: m4.translate(m4.identity(), 1.6, 0.1, -1.6),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSource,
+      ]),
+    },
   ];
 
   gl.enable(gl.DEPTH_TEST);
@@ -267,15 +257,17 @@ var objects;
     let modelMatrix = m4.identity();
     let modelViewMatrix = m4.multiply(viewMatrix, modelMatrix);
 
-    lightPosition = [
-      lightControls.lightPositionX,
-      lightControls.lightPositionY,
-      lightControls.lightPositionZ,
-    ];
+    // lightPosition = [
+    //   lightControls.lightPositionX,
+    //   lightControls.lightPositionY,
+    //   lightControls.lightPositionZ,
+    // ];
     let lightPositionEyeSpace = m4.transformPoint(viewMatrix, lightPosition);
     // m4.normalize(lightPosition);
 
     const sharedUniforms = {
+      u_lightIntensity: lightControls.lightIntensity,
+      u_attenuationFactor: lightControls.attenuationFactor,
       u_bumpEnabled: advancedRenderingControls.bumpMap ? 1 : 0,
       u_lightPosition: lightPositionEyeSpace,
       u_model: modelMatrix,
@@ -285,7 +277,7 @@ var objects;
       Ka: lightControls.Ka,
       Kd: lightControls.Kd,
       Ks: lightControls.Ks,
-      shininess: lightControls.shininess,
+      u_shininess: lightControls.shininess,
       ambientColor: normalizeRGBVector(lightControls.ambientColor),
       diffuseColor: normalizeRGBVector(lightControls.diffuseColor),
       specularColor: normalizeRGBVector(lightControls.specularColor),
