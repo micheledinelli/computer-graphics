@@ -239,9 +239,8 @@ var objects;
     gl.cullFace(gl.BACK);
 
     eye = [
-      controls.D * Math.cos(controls.phi) * Math.sin(controls.theta) +
-        controls.cameraDx,
-      controls.D * Math.sin(controls.phi) + controls.cameraDy,
+      controls.D * Math.cos(controls.phi) * Math.sin(controls.theta),
+      controls.D * Math.sin(controls.phi),
       controls.D * Math.cos(controls.phi) * Math.cos(controls.theta),
     ];
 
