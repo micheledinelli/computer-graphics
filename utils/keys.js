@@ -90,10 +90,12 @@ window.addEventListener("keydown", onKeyDown);
 canvas.addEventListener("wheel", wheel);
 canvas.addEventListener("mousedown", () => {
   moveCamera = true;
+  canvas.style.cursor = "grabbing";
 });
 canvas.addEventListener("mousemove", mouseMove);
 canvas.addEventListener("mouseup", () => {
   moveCamera = false;
+  canvas.style.cursor = "grab";
 });
 
 canvas.addEventListener("touchstart", (event) => {

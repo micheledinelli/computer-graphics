@@ -10,7 +10,7 @@ var program;
 var render;
 
 var eye;
-const at = [0, 0, 0];
+const at = [0, 1, 0];
 const up = [0, 1, 0];
 var lightPosition = [0.2, 2, -1];
 
