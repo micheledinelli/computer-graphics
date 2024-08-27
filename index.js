@@ -276,6 +276,7 @@ var objects;
     // m4.normalize(lightPosition);
 
     const sharedUniforms = {
+      u_bumpEnabled: advancedRenderingControls.bumpMap ? 1 : 0,
       u_lightPosition: lightPositionEyeSpace,
       u_model: modelMatrix,
       u_view: viewMatrix,

@@ -13,6 +13,8 @@ uniform sampler2D normalMap;
 uniform vec3 u_lightPosition;
 uniform vec3 u_ambientLight;
 
+uniform int u_bumpEnabled;
+
 uniform float shininess;
 
 uniform vec3 emissive; // Set by the parser
@@ -32,12 +34,14 @@ void main() {
   vec3 L = normalize(u_lightPosition - v_position);
   
   // From https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html
-  vec3 tangent = normalize(v_tangent);
-  vec3 bitangent = normalize(cross(normal, tangent));
-  mat3 tbn = mat3(tangent, bitangent, normal);
+  if (u_bumpEnabled == 1) {
+    vec3 tangent = normalize(v_tangent);
+    vec3 bitangent = normalize(cross(normal, tangent));
+    mat3 tbn = mat3(tangent, bitangent, normal);
 
-  normal = texture2D(normalMap, v_texcoord).rgb * 2. - 1.;
-  normal = normalize(tbn * normal);
+    normal = texture2D(normalMap, v_texcoord).rgb * 2. - 1.;
+    normal = normalize(tbn * normal);
+  }
 
   // From http://www.cs.toronto.edu/~jacobson/phong-demo/ Phong shading
   // Lambert's cosine law

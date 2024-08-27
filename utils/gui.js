@@ -9,6 +9,10 @@ var controls = {
   cameraDy: 0,
 };
 
+var advancedRenderingControls = {
+  bumpMap: false,
+};
+
 var lightControls = {
   lightPositionX: 1.3,
   lightPositionY: 2.4,
@@ -162,6 +166,14 @@ var lightControls = {
     .step(1)
     .onChange(function () {
       updateLightPosition();
+      render();
+    });
+
+  var advancedRenderingFolder = gui.addFolder("Advanced rendering");
+
+  advancedRenderingFolder
+    .add(advancedRenderingControls, "bumpMap")
+    .onChange(function () {
       render();
     });
 
