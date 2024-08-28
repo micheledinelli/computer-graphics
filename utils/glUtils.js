@@ -48,102 +48,6 @@ async function loadTextResource(url) {
 }
 
 /**
- * Loads an OBJ file from the specified URL and returns the parsed result.
- * @param {string} objHref - The URL of the OBJ file to load.
- * @returns {Promise<Obj>} A promise that resolves to the parsed result of the OBJ file.
- */
-async function loadOBJ(objHref) {
-  // Fetch and parse the OBJ model
-  const response = await fetch(objHref);
-  const text = await response.text();
-  const obj = parseOBJ(text);
-
-  // Fetch and parse the material libraries (MTL)
-  const baseHref = new URL(objHref, window.location.href);
-  const matTexts = await Promise.all(
-    obj.materialLibs.map(async (filename) => {
-      const matHref = new URL(filename, baseHref).href;
-      const response = await fetch(matHref);
-      return await response.text();
-    })
-  );
-  const materials = parseMTL(matTexts.join("\n"));
-
-  // Prepare default textures
-  const textures = {
-    defaultWhite: create1PixelTexture(gl, [255, 255, 255, 255]),
-    defaultNormal: create1PixelTexture(gl, [127, 127, 255, 0]),
-  };
-
-  // Load texture for materials
-  for (const material of Object.values(materials)) {
-    Object.entries(material)
-      .filter(([key]) => key.endsWith("Map"))
-      .forEach(([key, filename]) => {
-        let texture = textures[filename];
-        if (!texture) {
-          const textureHref = new URL(filename, baseHref).href;
-          texture = createTexture(gl, textureHref);
-          textures[filename] = texture;
-        }
-        material[key] = texture;
-      });
-  }
-
-  // Hack the materials to visualize the specular map
-  Object.values(materials).forEach((m) => {
-    m.shininess = 25;
-    m.specular = [3, 2, 1];
-  });
-
-  // Define a default material
-  const defaultMaterial = {
-    diffuse: [1, 1, 1],
-    diffuseMap: textures.defaultWhite,
-    normalMap: textures.defaultNormal,
-    ambient: [0, 0, 0],
-    specular: [1, 1, 1],
-    specularMap: textures.defaultWhite,
-    shininess: 400,
-    opacity: 1,
-  };
-
-  const parts = obj.geometries.map(({ material, data }) => {
-    if (data.color) {
-      if (data.position.length === data.color.length) {
-        data.color = { numComponents: 3, data: data.color };
-      }
-    } else {
-      data.color = { value: [1, 1, 1, 1] };
-    }
-
-    // Generate tangents if data is available
-    if (data.texcoord && data.normal) {
-      data.tangent = generateTangents(data.position, data.texcoord);
-    } else {
-      data.tangent = { value: [1, 0, 0] };
-    }
-
-    if (!data.texcoord) {
-      data.texcoord = { value: [0, 0] };
-    }
-
-    if (!data.normal) {
-      data.normal = { value: [0, 0, 1] };
-    }
-
-    const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
-    return {
-      material: {
-        ...defaultMaterial,
-        ...materials[material],
-      },
-      bufferInfo,
-    };
-  });
-}
-
-/**
  * Calculates the minimum and maximum values for the given positions.
  * @param {Array<number>} positions - The positions array.
  * @returns {Object} An object containing the minimum and maximum values.
@@ -189,16 +93,4 @@ function getGeometriesExtents(geometries) {
  */
 function degToRad(d) {
   return (d * Math.PI) / 180;
-}
-
-/**
- * Class representing an OBJ model.
- */
-class Obj {
-  constructor(data) {
-    this.positions = data.positions;
-    this.indices = data.indices;
-    this.normals = data.normals;
-    this.texCoords = data.texCoords;
-  }
 }
