@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
 body {
   margin: 0;
   padding: 0;
@@ -10,6 +12,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 canvas {
@@ -25,6 +31,33 @@ audio {
   bottom: 0;
   left: 0;
   width: 100%;
+}
+
+#credits {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+}
+
+#credits a {
+  color: white;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.2em;
+}
+
+#credits a:hover {
+  text-decoration: none;
+  background-color: white;
+  color: black;
+  transition: background-color 0.3s ease;
 }
 
 #audio-btn {

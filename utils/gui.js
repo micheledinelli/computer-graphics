@@ -24,7 +24,7 @@ var lightControls = {
 };
 
 var neonControls = {
-  neonIntensity: 0,
+  neonIntensity: 0.0,
   neonColor: [255, 0, 0],
 };
 
@@ -162,7 +162,7 @@ var neonControls = {
   neonFolder
     .add(neonControls, "neonIntensity")
     .min(0)
-    .max(1.5)
+    .max(1)
     .step(0.1)
     .onChange(function () {
       render();
