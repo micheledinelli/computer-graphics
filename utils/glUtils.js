@@ -28,6 +28,11 @@ function getWebGLContext(canvas) {
   return gl;
 }
 
+/**
+ * Loads a text resource from the specified URL and returns the text content.
+ * @param {string} url - The URL of the text resource to load.
+ * @returns {Promise<string>} A promise that resolves to the text content of the resource.
+ */
 async function loadTextResource(url) {
   try {
     const response = await fetch(url + "?please-dont-cache=" + Math.random());
@@ -139,9 +144,9 @@ async function loadOBJ(objHref) {
 }
 
 /**
- *
- * @param {*} positions
- * @returns
+ * Calculates the minimum and maximum values for the given positions.
+ * @param {Array<number>} positions - The positions array.
+ * @returns {Object} An object containing the minimum and maximum values.
  */
 function getExtents(positions) {
   const min = positions.slice(0, 3);
@@ -157,9 +162,9 @@ function getExtents(positions) {
 }
 
 /**
- *
- * @param {*} geometries
- * @returns
+ * Calculates the minimum and maximum values for the given geometries.
+ * @param {Array<Object>} geometries - The geometries array.
+ * @returns {Object} An object containing the minimum and maximum values.
  */
 function getGeometriesExtents(geometries) {
   return geometries.reduce(
@@ -186,6 +191,9 @@ function degToRad(d) {
   return (d * Math.PI) / 180;
 }
 
+/**
+ * Class representing an OBJ model.
+ */
 class Obj {
   constructor(data) {
     this.positions = data.positions;
@@ -193,78 +201,4 @@ class Obj {
     this.normals = data.normals;
     this.texCoords = data.texCoords;
   }
-}
-
-/**
- *
- * @param {WebGLRenderingContext} gl
- * @param {*} data
- * @returns
- */
-function createBuffersAndPointAttrib(gl, data) {
-  // Create a buffer for positions
-  var vertexBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(data.positions),
-    gl.STATIC_DRAW
-  );
-
-  // Create a buffer for normals
-  var normalBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(data.normals),
-    gl.STATIC_DRAW
-  );
-
-  // Create a buffer for textures
-  var textureBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, textureBufferObject);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(data.texcoords),
-    gl.STATIC_DRAW
-  );
-
-  // Bind the position buffer and assign attribute location
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
-  var positionAttribLocation = gl.getAttribLocation(program, "a_position");
-  gl.vertexAttribPointer(
-    positionAttribLocation, // Attribute location
-    3, // Number of elements per attribute
-    gl.FLOAT, // Type of elements
-    gl.FALSE,
-    0, // Size of an individual vertex
-    0 // Offset from the beginning of a single vertex to this attribute
-  );
-  gl.enableVertexAttribArray(positionAttribLocation);
-
-  // Bind the normal buffer and assign attribute location
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-  var normalAttribLocation = gl.getAttribLocation(program, "a_normal");
-  gl.vertexAttribPointer(
-    normalAttribLocation, // Attribute location
-    3, // Number of elements per attribute
-    gl.FLOAT, // Type of elements
-    gl.FALSE,
-    0, // Size of an individual vertex
-    0 // Offset from the beginning of a single vertex to this attribute
-  );
-  gl.enableVertexAttribArray(normalAttribLocation);
-
-  // Bind the texture buffer and assign attribute location
-  gl.bindBuffer(gl.ARRAY_BUFFER, textureBufferObject);
-  var textureAttribLocation = gl.getAttribLocation(program, "a_texCoord");
-  gl.vertexAttribPointer(
-    textureAttribLocation, // Attribute location
-    2, // Number of elements per attribute
-    gl.FLOAT, // Type of elements
-    gl.FALSE,
-    0, // Size of an individual vertex
-    0 // Offset from the beginning of a single vertex to this attribute
-  );
-  // gl.enableVertexAttribArray(textureAttribLocation);
 }

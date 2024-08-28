@@ -1,3 +1,7 @@
+/**
+ * Handles keyboard events.
+ * @param {KeyboardEvent} event - The keyboard event.
+ */
 function onKeyDown(event) {
   var dr = (5.0 * Math.PI) / 180.0;
 
@@ -21,6 +25,10 @@ function onKeyDown(event) {
   render();
 }
 
+/**
+ * Handles wheel events.
+ * @param {WheelEvent} event - The wheel event.
+ */
 function wheel(event) {
   const zoomSpeed = 0.05;
   const deltaZoom = -Math.sign(event.deltaY) * zoomSpeed;
@@ -29,6 +37,10 @@ function wheel(event) {
 }
 
 var moveCamera = false;
+/**
+ * Handles mouse move events.
+ * @param {MouseEvent} event - The mouse move event.
+ */
 function mouseMove(event) {
   if (!moveCamera) return false;
 
@@ -53,6 +65,11 @@ var lastTouchX = 0;
 var lastTouchY = 0;
 var isPinching = false;
 var initialDistance = 0;
+
+/**
+ * Handles touch move events.
+ * @param {TouchEvent} event - The touch move event.
+ */
 function touchMove(event) {
   if (event.touches.length === 1 && moveCamera) {
     const touch = event.touches[0];
@@ -118,6 +135,12 @@ canvas.addEventListener("touchend", (event) => {
   }
 });
 
+/**
+ * Calculates the Euclidean distance in 2D space between two touch points.
+ * @param {Touch} touch1 - The first touch point.
+ * @param {Touch} touch2 - The second touch point.
+ * @returns {number} The distance between the two touch points.
+ */
 function getDistance(touch1, touch2) {
   const dx = touch2.clientX - touch1.clientX;
   const dy = touch2.clientY - touch1.clientY;

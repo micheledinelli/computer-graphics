@@ -13,6 +13,7 @@ var eye;
 const at = [0, 1, 0];
 const up = [0, 1, 0];
 var lightPosition = [0.2, 2, -1];
+var neonPosition = [-0.6, 2.5, 1.7];
 
 var objects;
 
@@ -27,30 +28,34 @@ var objects;
     return;
   }
 
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
+
+  // Load shaders
   let vertexShaderSource = await loadTextResource("shaders/vertex.glsl");
   let fragmentShaderSource = await loadTextResource("shaders/fragment.glsl");
   let fragmentShaderSourceNoTex = await loadTextResource(
     "shaders/fragment-notex.glsl"
   );
+  let fragmentShaderSourceNeon = await loadTextResource(
+    "shaders/fragment-neon.glsl"
+  );
+  let fragmentShaderSourceRoom = await loadTextResource(
+    "shaders/fragment-room.glsl"
+  );
 
   console.log("Shaders loaded");
   updateLoadingBar(0.2);
 
+  // Define objects to render
   objects = [
-    // {
-    //   href: "data/sphere.obj",
-    //   modelMatrix: m4.translate(m4.identity(), 0.2, 2, -1),
-    //   meshProgramInfo: webglUtils.createProgramInfo(gl, [
-    //     vertexShaderSource,
-    //     fragmentShaderSourceNoTex,
-    //   ]),
-    // },
     {
       href: "data/iso-room/iso.obj",
       modelMatrix: m4.identity(),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
-        fragmentShaderSourceNoTex,
+        fragmentShaderSourceRoom,
       ]),
     },
     {
@@ -193,7 +198,7 @@ var objects;
       modelMatrix: m4.translate(m4.identity(), -0.6, 2.5, 1.7),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
-        fragmentShaderSource,
+        fragmentShaderSourceNeon,
       ]),
     },
     {
@@ -214,10 +219,7 @@ var objects;
     },
   ];
 
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
-  gl.cullFace(gl.BACK);
-
+  // Load objects
   for (let objToLoad of objects) {
     let obj = await load(gl, objToLoad.href);
     objToLoad.parts = obj.parts;
@@ -243,7 +245,6 @@ var objects;
       controls.D * Math.sin(controls.phi),
       controls.D * Math.cos(controls.phi) * Math.cos(controls.theta),
     ];
-
     const cameraMatrix = m4.lookAt(eye, at, up);
     const viewMatrix = m4.inverse(cameraMatrix);
     const projectionMatrix = m4.perspective(
@@ -253,26 +254,17 @@ var objects;
       controls.far
     );
 
-    let modelMatrix = m4.identity();
-    let modelViewMatrix = m4.multiply(viewMatrix, modelMatrix);
-
-    // lightPosition = [
-    //   lightControls.lightPositionX,
-    //   lightControls.lightPositionY,
-    //   lightControls.lightPositionZ,
-    // ];
     let lightPositionEyeSpace = m4.transformPoint(viewMatrix, lightPosition);
-    // m4.normalize(lightPosition);
+    let neonPositionEyeSpace = m4.transformPoint(viewMatrix, neonPosition);
 
+    // Shared uniforms for all objects
     const sharedUniforms = {
+      u_lightPosition: lightPositionEyeSpace,
       u_lightIntensity: lightControls.lightIntensity,
       u_attenuationFactor: lightControls.attenuationFactor,
-      u_bumpEnabled: advancedRenderingControls.bumpMap ? 1 : 0,
-      u_lightPosition: lightPositionEyeSpace,
-      u_model: modelMatrix,
+      u_cameraPosition: eye,
       u_view: viewMatrix,
       u_projection: projectionMatrix,
-      u_modelViewTranspose: m4.transpose(m4.inverse(modelViewMatrix)),
       Ka: lightControls.Ka,
       Kd: lightControls.Kd,
       Ks: lightControls.Ks,
@@ -280,25 +272,37 @@ var objects;
       ambientColor: normalizeRGBVector(lightControls.ambientColor),
       diffuseColor: normalizeRGBVector(lightControls.diffuseColor),
       specularColor: normalizeRGBVector(lightControls.specularColor),
+      u_neonPosition: neonPositionEyeSpace,
+      u_neonColor: normalizeRGBVector(neonControls.neonColor),
+      u_neonIntensity: neonControls.neonIntensity,
+      u_neonRadius: 2.0,
+      u_bumpEnabled: advancedRenderingControls.bumpMap ? 1 : 0,
     };
 
     // Iterate over the objects to render
     for (let obj of objects) {
-      for (const { bufferInfo, material } of obj.parts) {
-        gl.useProgram(obj.meshProgramInfo.program);
-        webglUtils.setUniforms(obj.meshProgramInfo, sharedUniforms);
+      let modelViewMatrix = m4.multiply(viewMatrix, obj.modelMatrix);
+      let modelViewTranspose = m4.transpose(m4.inverse(modelViewMatrix));
 
-        // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+      // Set the program and shared uniforms for the object
+      gl.useProgram(obj.meshProgramInfo.program);
+      webglUtils.setUniforms(obj.meshProgramInfo, sharedUniforms);
+
+      for (const { bufferInfo, material } of obj.parts) {
+        // Calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
         webglUtils.setBuffersAndAttributes(gl, obj.meshProgramInfo, bufferInfo);
-        // calls gl.uniform
+
+        // Calls gl.uniform setting the specific uniforms for the object
         webglUtils.setUniforms(
           obj.meshProgramInfo,
           {
             u_model: obj.modelMatrix,
+            u_modelViewTranspose: modelViewTranspose,
           },
           material
         );
-        // calls gl.drawArrays or gl.drawElements
+
+        // Calls gl.drawArrays or gl.drawElements
         webglUtils.drawBufferInfo(gl, bufferInfo);
       }
     }

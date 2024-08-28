@@ -12,9 +12,6 @@ var advancedRenderingControls = {
 };
 
 var lightControls = {
-  //   lightPositionX: 1.3,
-  //   lightPositionY: 2.4,
-  //   lightPositionZ: -1.69,
   Ka: 0.7,
   Kd: 0.7,
   Ks: 0.3,
@@ -26,9 +23,12 @@ var lightControls = {
   specularColor: [123, 123, 123],
 };
 
-/**
- * Initializes the GUI for controlling various parameters.
- */
+var neonControls = {
+  neonIntensity: 0,
+  neonColor: [255, 0, 0],
+};
+
+// Initialize the GUI for controlling various parameters
 (async function initGUI() {
   var gui = new dat.GUI();
 
@@ -156,6 +156,21 @@ var lightControls = {
     .onChange(function (color) {
       render();
     });
+
+  var neonFolder = gui.addFolder("Neon controls");
+
+  neonFolder
+    .add(neonControls, "neonIntensity")
+    .min(0)
+    .max(1.5)
+    .step(0.1)
+    .onChange(function () {
+      render();
+    });
+
+  neonFolder.addColor(neonControls, "neonColor").onChange(function (color) {
+    render();
+  });
 
   var advancedRenderingFolder = gui.addFolder("Advanced rendering");
 

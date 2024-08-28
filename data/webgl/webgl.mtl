@@ -10,4 +10,4 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd WebGL_baseColor.jpeg
-map_Bump -bm 1.000000 WebGL_normal.png
+map_Bump WebGL_normal.png

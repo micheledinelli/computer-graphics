@@ -345,10 +345,10 @@ function generateTangents(position, texcoord, indices) {
 }
 
 /**
- *
- * @param {WebGLRenderingContext} gl
- * @param {String} objHref
- * @returns
+ * Loads an OBJ file and its associated materials and textures.
+ * @param {WebGLRenderingContext} gl - The WebGL rendering context.
+ * @param {string} objHref - The URL of the OBJ file to load.
+ * @returns {Promise<Object>} A promise that resolves to an object containing the loaded model data.
  */
 async function load(gl, objHref) {
   // const objHref = "data/avatar/sphere.obj";
