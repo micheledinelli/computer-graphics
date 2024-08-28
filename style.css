@@ -57,7 +57,6 @@ audio {
   text-decoration: none;
   background-color: white;
   color: black;
-  transition: background-color 0.3s ease;
 }
 
 #audio-btn {
@@ -82,7 +81,6 @@ audio {
   outline: none;
 }
 
-/* Update the wave-animation style */
 .wave-animation {
   display: none;
   position: relative;
@@ -119,7 +117,6 @@ audio {
   }
 }
 
-/* Play icon shown when audio is paused */
 .play-icon {
   display: block;
   width: 0;
