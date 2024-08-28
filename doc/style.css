@@ -14,6 +14,7 @@ body {
   font-family: "Roboto", sans-serif;
   font-weight: 400;
   font-style: normal;
+  font-size: 1.1rem;
 
   color: #121212;
 }
@@ -57,6 +58,13 @@ h2 {
 
 img {
   width: 100%;
+  height: auto;
+  transition: transform 0.5s ease;
+  cursor: zoom-in;
+}
+
+img:hover {
+  transform: scale(1.4);
 }
 
 span.highlight {
@@ -69,5 +77,31 @@ span.highlight {
   bottom: 10px;
   right: 10px;
   padding: 10px;
-  text-align: center;
+}
+
+#toc {
+  position: fixed;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+}
+
+#toc ul {
+  list-style: none;
+  margin: 0.4em;
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+    width: 80%;
+  }
+
+  #toc {
+    display: none;
+  }
+
+  #credits,
+  .footer {
+    position: relative;
+  }
 }

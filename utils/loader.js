@@ -351,14 +351,6 @@ function generateTangents(position, texcoord, indices) {
  * @returns {Promise<Object>} A promise that resolves to an object containing the loaded model data.
  */
 async function load(gl, objHref) {
-  // const objHref = "data/avatar/sphere.obj";
-  // const objHref = "data/desk-s/desk.obj";
-  // const objHref = "data/windmill/windmill.obj";
-  // const objHref = "data/iso-room/iso.obj";
-  // const objHref = "data/windmill/windmill.obj";
-  // const objHref = "data/chair/chair.obj";
-  // const objHref =
-  //   "https://webglfundamentals.org/webgl/resources/models/chair/chair.obj";
   const response = await fetch(objHref);
   const text = await response.text();
   const obj = parseOBJ(text);

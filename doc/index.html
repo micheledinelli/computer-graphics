@@ -7,26 +7,31 @@
     <!-- CSS -->
     <link rel="stylesheet" href="style.css" />
 
+    <!-- TOC -->
+    <script type="text/javascript" src="toc.js" defer></script>
+
     <title>Documentation - where-i-wrote-this</title>
   </head>
   <body>
-    <div id="credits">
-      <div>
-        Source code on
-        <a
-          href="https://github.com/micheledinelli/where-i-wrote-this"
-          target="_blank"
-          >github</a
-        >
-      </div>
-      <div><a href="../index.html" target="_blank">Go to project</a></div>
-    </div>
-
     <div class="container">
       <h1>Documentazione</h1>
       <h2>Progetto di Computer Graphics a.a 2023/2024</h2>
 
-      <h3>Introduzione</h3>
+      <div id="credits">
+        <div>
+          Source code on
+          <a
+            href="https://github.com/micheledinelli/where-i-wrote-this"
+            target="_blank"
+            >Github</a
+          >
+        </div>
+        <div><a href="../index.html" target="_blank">Go to project</a></div>
+      </div>
+
+      <div id="toc"></div>
+
+      <h3 id="introduzione">Introduzione</h3>
       <p>
         Il nome del progetto è
         <span class="highlight">where-i-wrote-this</span> ed è una
@@ -41,9 +46,9 @@
           href="https://www.unibo.it/it/studiare/dottorati-master-specializzazioni-e-altra-formazione/insegnamenti/insegnamento/2023/479028"
         >
           Computer Graphics nell'a.a 2023/2024 </a
-        >. Viene utilizzata come base una stanza isometrica e al suo interno
-        sono posizionati i vari oggetti. Tutti gli oggetti della scena sono
-        stati modellati utilizzando
+        >. Viene utilizzata come base una stanza isometrica aperta e al suo
+        interno vengono resi in proiezione prospettica vari oggetti. Tutti gli
+        oggetti della scena sono stati modellati utilizzando
         <a href="https://www.blender.org/">Blender</a> (v4.1.1), esportati in
         formato <a href="https://paulbourke.net/dataformats/obj/">.obj</a> e
         caricati sulla scena utilizzando le librerie fornite dal docente.
@@ -58,21 +63,36 @@
 
       <figure>
         <img src="assets/main.png" alt="main" />
-        <figcaption>Screenshot of where-i-wrote-this</figcaption>
+        <figcaption>Scena principale</figcaption>
       </figure>
 
-      <h3>Struttura del progetto</h3>
+      <h3 id="struttura-del-progetto">Struttura del progetto</h3>
       Il progetto è strutturato come segue:
       <ul>
         <li>
-          audio/: directory che contiene il codice per caricare un file mp3 e
-          gestisce un player audio
+          <a href="../audio/">audio/</a>: directory che contiene il codice per
+          caricare un file mp3 e gestisce un player audio
         </li>
-        <li>data/: directory che contiene i file .obj dei vari oggetti</li>
-        <li>doc/: directory che contiene la documentazione del progetto</li>
-        <li>libs/: directory che contiene le librerie utilizzate</li>
-        <li>shaders/: directory che contiene i file shader</li>
-        <li>utils/: directory che contiene funzioni utilizzate da più parti</li>
+        <li>
+          <a href="../data">data/</a>: directory che contiene i file .obj dei
+          vari oggetti
+        </li>
+        <li>
+          <a href="../doc">doc/</a>: directory che contiene la documentazione
+          del progetto
+        </li>
+        <li>
+          <a href="../libs">libs/</a>: directory che contiene le librerie
+          utilizzate
+        </li>
+        <li>
+          <a href="../shaders">shaders/</a>: directory che contiene i file
+          shader
+        </li>
+        <li>
+          <a href="../utils">utils/</a>: directory che contiene funzioni
+          utilizzate da più parti
+        </li>
         <li>
           <span class="highlight">index.html</span>: file HTML principale.
         </li>
@@ -88,7 +108,7 @@
         <li>project/: directory che contiene il progetto</li>
       </ul>
 
-      <h3>Librerie utilizzate</h3>
+      <h3 id="librerie-utilizzate">Librerie utilizzate</h3>
       <p>
         Sono state utilizzate diverse librerie per facilitare lo sviluppo e
         diminuire la quantità di codice.
@@ -115,17 +135,227 @@
         </li>
       </ul>
 
-      <h3>Comandi</h3>
-      <p></p>
-    </div>
+      <p>
+        Inizialmente si è cercato di sviluppare da zero un parser per i file
+        .obj fallendo nel tentativo. In secondo luogo si è deciso di utilizzare
+        le librerie fornite a lezione ma infine si è deciso di utilizzare
+        <a href="../libs/webgl-utils.js">webgl-utils.js</a> in aggiunta a
+        qualche riga di codice JavaScript, ritenendola la scelta più conveniente
+        e semplice.
+      </p>
 
-    <div class="footer">
-      <div>Laurea Magistrale in Informatica</div>
-      <div>
-        <a href="mailto:michele.dinelli5@studio.unibo.it" target="_blank"
-          >Michele Dinelli</a
+      <h3 id="comandi">Comandi</h3>
+      <h4 id="interfaccia-grafica-2d">Interfaccia grafica 2D</h4>
+      <p>
+        Per muoversi all'interno della scena è possibile utilizzare il cursore,
+        il mouse e la tastiera. Inoltre grazie alla libreria dat.gui.js viene
+        fornita un'interfaccia grafica 2D per modificare alcuni parametri della
+        scena. Per mostrare o nascondere l'interfaccia è possibile cliccare il
+        tasto <code>H</code> sulla tastiera.
+      </p>
+
+      <figure>
+        <img src="assets/gui.png" alt="gui" />
+        <figcaption>Interfaccia grafica 2D (dat.gui.js)</figcaption>
+      </figure>
+
+      <h4 id="movimento-della-camera">Movimento della camera</h4>
+      <p>
+        Utilizzando il cursore è possibile cliccare e trascinare sullo schermo
+        per ruotare la camera. L'icona del cursore cambia stato da grab a
+        grabbing per mostrare all'utente che il movimento della camera è attivo.
+        La gestione del movimento della camera è implementata nel file
+        <a href="../utils/keys.js">utils/keys.js</a>. Viene catturato l'evento
+        opportuno e vengono aggiornati i parametri che defnisciono la posizione
+        della camera nella scena.
+      </p>
+
+      <figure>
+        <img src="assets/move-camera.gif" alt="move-with-cursor" />
+        <figcaption>
+          Esempio di movimento della camera con il cursore
+        </figcaption>
+      </figure>
+
+      <p>
+        Per avvicinare o allontare la camera è possibile utilizzare la rotellina
+        del mouse oppure, in alternativa, è possibile utilizzare due dita e
+        scorrere verso l'alto o verso il basso sul trackpad. Anche questa
+        funzione è gestita da
+        <a href="../utils/keys.js">utils/keys.js</a>.
+      </p>
+
+      <figure>
+        <img src="assets/move-camera-wheel.gif" alt="move-with-wheel" />
+        <figcaption>
+          Esempio di movimento della camera con la rotellina del mouse o con il
+          trackpad
+        </figcaption>
+      </figure>
+
+      <p>
+        È possibile inoltre modificare la posizione della camera utilizzando le
+        frecce della tastiera. Sono stati previsti 4 keybindings, i quali
+        incrementano o decrementano i parametri che definiscono la posizione
+        della camera di un certo delta angolare
+        <code>dr = (5.0 * Math.PI) / 180.0</code>
+      </p>
+      <ul>
+        <li>ArrowLeft: decrementa la coordinata theta della camera</li>
+        <li>ArrowRight: incrementa la coordinata theta della camera</li>
+        <li>ArrowUp: decrementa la coordinata phi della camera</li>
+        <li>ArrowDown: incrementa la coordinata phi della camera</li>
+      </ul>
+
+      <h3 id="modelli-3d">Modelli 3D</h3>
+      <p>
+        La maggior parte dei modelli 3D sono stati ottenuti da
+        <a href="https://sketchfab.com">Sketchfab</a>. Sono stati importati su
+        Blender utilizzando il
+        <a href="https://github.com/sketchfab/blender-plugin"
+          >plugin di Sketchfab</a
         >
-        0001132338
+        per Blender e sono stati modificati per adattarli alla scena.
+      </p>
+
+      <figure>
+        <img src="assets/mug-editing-blender.png" alt="model" />
+        <figcaption>Esempio di modellazione 3D su Blender</figcaption>
+      </figure>
+
+      <h4 id="caricamento-dei-modelli">Caricamento dei modelli</h4>
+      <p>
+        I modelli vengono caricati utilizzando le funzionalità presenti in
+        <a href="../utils/loader.js">utils/loader.js</a>. Viene sfruttata la
+        <a
+          href="https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html"
+          >guida offerta da WebGLFundamentals</a
+        >
+        e la libreria <a href="../libs/webgl-utils.js">webgl-utils.js</a>
+        per caricare i file .obj e i relativi materiali (file .mtl).
+      </p>
+      <p>
+        L'utilizzo della libreria permette di risparmiare molte righe di codice
+        e di caricare in maniera semplice e veloce i file .obj comprensivi di
+        materiali, texture e normali. Viene infatti fornito un parser che
+        gestisce tutti i dati e li converte in un formato utilizzabile dalla
+        libreria. Oltre a questo vengono fornite funzionalità utili per
+        l'impostazione dei campi <code>uniform</code> degli shader.
+      </p>
+
+      <h3 id="rendering">Rendering</h3>
+      <p>
+        Viene definita una lista di oggetti 3D che devono essere resi in
+        geometria 3D prospettica. Ogni oggetto 3D può specificare quale vertex
+        shader e quale fragemnt shader utilizzare definendo quindi un programma
+        (combinazione dei 2 shader). Così facendo ogni oggetto 3D può essere
+        renderizzato con un programma diverso garantendo flessibilità.
+      </p>
+      <p>
+        Gli oggetti dispongono anche del campo <code>modelMatrix</code>, il
+        quale definisce una matrice 4x4 che rappresenta la matrice specifica per
+        il modello. Questa matrice è cruciale nel rendering, poiché trasforma
+        l'oggetto dallo spazio locale al mondo prima di applicare ulteriori
+        trasformazioni (vista, proiezione).
+      </p>
+      <p>
+        Una volta definiti gli oggetti da renderizzare, viene iterata la lista
+        degli oggetti e per ciascuno di essi viene calcolata la matrice
+        <code>modelViewMatrix</code> e la matrice
+        <code>modelViewTranspose</code>. La matrice modelViewTranspose è
+        necessaria per trasformare le normali quando varia la posizione della
+        camera. Se i punti vengono trasformati con una matrice M, le normali
+        devono essere trasformate con la matrice inversa trasposta (M^-1)^T. Il
+        calcolo di una nuova normale sarà dato da <code>n' = (M^-1)^T * n</code>
+        dove n indica una normale e M indica la matrice modelViewMatrix. il
+        motivo per il quale è necessario l'utilizzo della matrice inversa
+        trasposta per trasformare le normali è spiegato
+        <a
+          href="https://computergraphics.stackexchange.com/questions/1502/why-is-the-transposed-inverse-of-the-model-view-matrix-used-to-transform-the-nor"
+          >qui</a
+        >.
+      </p>
+      <p>
+        La libreria <a href="../libs/webgl-utils.js">webgl-utils.js</a> fornisce
+        dei metodi molto utili per definire il setup dei programmi shader. I
+        metodi più utili sono sicuramente <code>setBuffersAndAttributes</code> e
+        <code>setUniforms</code> i quali impostano i buffer, gli attributi e i
+        campi uniform dei programmi shader.
+      </p>
+
+      <h3 id="shaders">Shaders</h3>
+      <p>
+        Ogni modello 3D specifica quale vertex shader e quale fragment shader
+        utilizzare. Gli shader sono stati implementati come file .glsl nella
+        directory <a href="../shaders/">shaders/</a> e vengono caricati
+        utilizzando la funzione <code>loadTextResource</code> presente nel
+        codice custom <a href="../utils/glUtils.js">utils/glUtils.js</a>. I
+        fragment shaders utilizzano un modello di illuminazione che si ispira al
+        Phong Shading presente a
+        <a href="http://www.cs.toronto.edu/~jacobson/phong-demo/">questo link</a
+        >.
+      </p>
+
+      <p>
+        In aggiunta all'interno della scena è presente un oggetto 3D (il logo di
+        WebGL) che simula una luce al neon. Per ottenere questo effetto sono
+        stati previsti due appositi fragment shaders applicati alla parete della
+        stanza e all'oggetto stesso (<a href="../shaders/fragment-room.glsl"
+          >fragment-room.glsl</a
+        >
+        e <a href="../shaders/fragment-neon.glsl">fragment-neon.glsl</a>).
+      </p>
+
+      <figure>
+        <img src="assets/neon.png" alt="neon" />
+        <figcaption>
+          Esempio di illuminazione al neon sulla parete e sul logo di WebGL
+        </figcaption>
+      </figure>
+
+      <p>
+        Quando gli oggetti utilizzano una texture è possibile applicare anche un
+        effetto di resa avanzata (bump mapping) abilitandolo dai controlli.
+        L'effetto è ottenuto facendo riferimento a
+        <a
+          href="https://webglfundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html"
+          >questa guida</a
+        >
+        e agli shaders che utilizza.
+      </p>
+
+      <p>
+        L'implementazione del progetto tiene conto degli
+        <a
+          href="https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html"
+          >anti-pattern WebGL</a
+        >
+        che sono stati evitati con attenzione. Sono stati evitati così
+        accuratamente ma probabilmente, per rispettare tutti gli standard, ne
+        sono stati inventati dei nuovi.
+      </p>
+
+      <h3 id="riferimenti">Riferimenti</h3>
+      <ul>
+        <li>
+          <a href="https://webglfundamentals.org/">WebGLFundamentals</a>
+        </li>
+        <li>
+          <a
+            href="https://www.youtube.com/playlist?list=PLjcVFFANLS5zH_PeKC6I8p0Pt1hzph_rt"
+            >Indigo Code</a
+          >
+        </li>
+      </ul>
+
+      <div class="footer">
+        <div>Laurea Magistrale in Informatica</div>
+        <div>
+          <a href="mailto:michele.dinelli5@studio.unibo.it" target="_blank"
+            >Michele Dinelli</a
+          >
+          0001132338
+        </div>
       </div>
     </div>
   </body>
