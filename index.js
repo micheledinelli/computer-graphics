@@ -59,19 +59,6 @@ var objects;
       ]),
     },
     {
-      href: "data/rack/rack.obj",
-      modelMatrix: m4.scale(
-        m4.translate(m4.identity(), 1.32, 0.05, 1.2),
-        0.0046,
-        0.0046,
-        0.0046
-      ),
-      meshProgramInfo: webglUtils.createProgramInfo(gl, [
-        vertexShaderSource,
-        fragmentShaderSourceNoTex,
-      ]),
-    },
-    {
       href: "data/carpet/carpet.obj",
       modelMatrix: m4.scale(
         m4.translate(m4.identity(), 1.32, 0.038, 1.2),
@@ -215,6 +202,19 @@ var objects;
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
         fragmentShaderSource,
+      ]),
+    },
+    {
+      href: "data/rack/rack.obj",
+      modelMatrix: m4.scale(
+        m4.translate(m4.identity(), 1.32, 0.05, 1.2),
+        0.0046,
+        0.0046,
+        0.0046
+      ),
+      meshProgramInfo: webglUtils.createProgramInfo(gl, [
+        vertexShaderSource,
+        fragmentShaderSourceNoTex,
       ]),
     },
   ];
