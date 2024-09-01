@@ -313,6 +313,8 @@
         </figcaption>
       </figure>
 
+      <h3 id="rendering-avanzato">Rendering avanzato</h3>
+      <h4 id="bump-mapping">Bump mapping</h4>
       <p>
         Quando gli oggetti utilizzano una texture è possibile applicare anche un
         effetto di resa avanzata (bump mapping) abilitandolo dai controlli.
@@ -324,18 +326,49 @@
         e agli shaders che utilizza.
       </p>
 
+      <figure>
+        <img src="assets/bump-mapping.png" alt="bump-mapping" />
+        <figcaption>Esempio di bump mapping</figcaption>
+      </figure>
+
+      <h4 id="shadow-mapping">Shadow mapping</h4>
+      <p>
+        Per ottenere l'effetto di shadow mapping è necessario abilitare
+        l'opzione dal pannello delle impostazioni. Viene renderizzata la scena
+        dalla prospettiva della luce e il risultato viene utilizzato per
+        scrivere su un buffer che rappresenta la profondità della scena.
+        Successivamente, durante il rendering della scena dal punto di vista
+        della camera, viene utilizzato il buffer creato per ottenere l'effetto
+        di shadow mapping proiettandolo sotto forma di texture. Per
+        l'implementazione è stata seguita questa
+        <a href="https://webglfundamentals.org/webgl/lessons/webgl-shadows.html"
+          >guida</a
+        >
+        riadattandola opportunamente.
+      </p>
+
+      <figure>
+        <img src="assets/shadows.png" alt="shadow" />
+        <figcaption>Esempio di shadow mapping</figcaption>
+      </figure>
+
+      <figure>
+        <img src="assets/shadows-up.png" alt="shadows-up" />
+        <figcaption>Esempio di shadow mapping</figcaption>
+      </figure>
+
+      <h3 id="riferimenti">Riferimenti</h3>
       <p>
         L'implementazione del progetto tiene conto degli
         <a
           href="https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html"
           >anti-pattern WebGL</a
         >
-        che sono stati evitati con attenzione. Sono stati evitati così
-        accuratamente ma probabilmente, per rispettare tutti gli standard, ne
-        sono stati inventati dei nuovi.
+        che sono stati evitati con attenzione. Nonostante ciò la paura di non
+        rispettare i pattern è così tanta che alle volte porta ad inventare dei
+        nuovi anti-pattern. Probabilmente anche per questo progetto è stato
+        così.
       </p>
-
-      <h3 id="riferimenti">Riferimenti</h3>
       <ul>
         <li>
           <a href="https://webglfundamentals.org/">WebGLFundamentals</a>
