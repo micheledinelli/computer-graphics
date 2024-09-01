@@ -319,6 +319,7 @@ var objects;
       u_shininess: lightControls.shininess,
       u_neonPosition: neonPositionEyeSpace,
       u_neonColor: normalizeRGBVector(neonControls.neonColor),
+      u_neonRadius: 2.0,
       u_neonIntensity: neonControls.neonIntensity,
       u_textureMatrix: textureMatrix,
       u_projectedTexture: depthTexture,
