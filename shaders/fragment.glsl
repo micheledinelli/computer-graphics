@@ -5,6 +5,7 @@ varying vec2 v_texcoord;
 varying vec3 v_normal; 
 varying vec3 v_tangent;
 varying vec4 v_color;
+varying vec4 v_projectedTexcoord;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
@@ -13,6 +14,7 @@ uniform sampler2D normalMap;
 uniform vec3 u_lightPosition;
 uniform float u_lightIntensity;
 uniform float u_attenuationFactor; 
+uniform sampler2D u_projectedTexture;
 
 uniform float u_shininess;
 
@@ -30,6 +32,9 @@ uniform float Kd;   // Diffuse reflection coefficient
 uniform float Ks;   // Specular reflection coefficient
 
 uniform int u_bumpEnabled; // Flag to enable bump mapping
+uniform int u_shadowMapEnabled; // Flag to enable shadow mapping
+uniform float u_bias; // Shadow mapping bias
+uniform vec3 u_reverseLightDir;
 
 void main() {
   vec3 normal = normalize(v_normal);
@@ -77,8 +82,31 @@ void main() {
   vec3 attenuatedDiffuse = lambertian * effectiveDiffuse * attenuation * u_lightIntensity;
   vec3 attenuatedSpecular = effectiveSpecular * attenuation * u_lightIntensity;
 
-  gl_FragColor = vec4(emissive +
+  vec4 finalColor = vec4(emissive +
                       Ka * ambientColor +
                       Kd * attenuatedDiffuse +
                       Ks * attenuatedSpecular, 1.0);
+
+  // Shadow mapping
+  if (u_shadowMapEnabled == 1) {
+    vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+    float currentDepth = projectedTexcoord.z + u_bias;
+
+    bool inRange =
+        projectedTexcoord.x >= 0.0 &&
+        projectedTexcoord.x <= 1.0 &&
+        projectedTexcoord.y >= 0.0 &&
+        projectedTexcoord.y <= 1.0;
+
+    // the 'r' channel has the depth values
+    float projectedDepth = texture2D(u_projectedTexture, projectedTexcoord.xy).r;
+    float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 0.7;
+
+    // Apply the light intensity to the shadow light
+    float light = max(dot(normal, u_reverseLightDir), 0.0);
+    // finalColor = vec4(finalColor.rgb * light * shadowLight, finalColor.a);    
+    finalColor.rgb = mix(finalColor.rgb * light, finalColor.rgb, shadowLight);
+  }
+
+  gl_FragColor = finalColor;
 }

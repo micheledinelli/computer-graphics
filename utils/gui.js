@@ -9,6 +9,11 @@ var controls = {
 
 var advancedRenderingControls = {
   bumpMap: false,
+  shadows: false,
+  shadowBias: -0.01,
+  shadowProjectionWidth: 27,
+  shadowProjectionHeight: 21,
+  fovy: 85.0,
 };
 
 var lightControls = {
@@ -178,6 +183,56 @@ var neonControls = {
     .add(advancedRenderingControls, "bumpMap")
     .onChange(function () {
       render();
+    });
+
+  advancedRenderingFolder
+    .add(advancedRenderingControls, "shadows")
+    .onChange(function () {
+      render();
+    });
+
+  advancedRenderingFolder
+    .add(advancedRenderingControls, "shadowBias")
+    .min(-0.5)
+    .max(0.5)
+    .step(0.05)
+    .onChange(function () {
+      if (advancedRenderingControls.shadows) {
+        render();
+      }
+    });
+
+  advancedRenderingFolder
+    .add(advancedRenderingControls, "shadowProjectionWidth")
+    .min(1)
+    .max(100)
+    .step(1)
+    .onChange(function () {
+      if (advancedRenderingControls.shadows) {
+        render();
+      }
+    });
+
+  advancedRenderingFolder
+    .add(advancedRenderingControls, "shadowProjectionHeight")
+    .min(1)
+    .max(100)
+    .step(1)
+    .onChange(function () {
+      if (advancedRenderingControls.shadows) {
+        render();
+      }
+    });
+
+  advancedRenderingFolder
+    .add(advancedRenderingControls, "fovy")
+    .min(10)
+    .max(180.0)
+    .step(5)
+    .onChange(function () {
+      if (advancedRenderingControls.shadows) {
+        render();
+      }
     });
 
   lightFolder.closed = true;

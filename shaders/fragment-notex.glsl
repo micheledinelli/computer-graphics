@@ -5,10 +5,12 @@ varying vec2 v_texcoord;
 varying vec3 v_normal; 
 varying vec3 v_tangent;
 varying vec4 v_color;
+varying vec4 v_projectedTexcoord;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
+uniform sampler2D u_projectedTexture;
 
 uniform vec3 u_lightPosition;
 uniform float u_lightIntensity;
@@ -28,6 +30,10 @@ uniform vec3 specularColor;
 uniform float Ka;   // Ambient reflection coefficient
 uniform float Kd;   // Diffuse reflection coefficient
 uniform float Ks;   // Specular reflection coefficient
+
+uniform int u_shadowMapEnabled;
+uniform float u_bias;
+uniform vec3 u_reverseLightDir;
 
 void main() {
   vec3 normal = normalize(v_normal);
@@ -62,8 +68,28 @@ void main() {
   vec3 attenuatedDiffuse = lambertian * effectiveDiffuse * attenuation * u_lightIntensity;
   vec3 attenuatedSpecular = effectiveSpecular * attenuation * u_lightIntensity;
 
-  gl_FragColor = vec4(emissive +
+  vec4 finalColor = vec4(emissive +
                       Ka * effectiveAmbient +
                       Kd * attenuatedDiffuse +
                       Ks * attenuatedSpecular, 1.0);
+
+  // From https://webglfundamentals.org/webgl/lessons/webgl-shadows.html shadow mapping
+  if (u_shadowMapEnabled == 1) {
+    vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+    float currentDepth = projectedTexcoord.z + u_bias;
+
+    bool inRange =
+        projectedTexcoord.x >= 0.0 &&
+        projectedTexcoord.x <= 1.0 &&
+        projectedTexcoord.y >= 0.0 &&
+        projectedTexcoord.y <= 1.0;
+
+    float projectedDepth = texture2D(u_projectedTexture, projectedTexcoord.xy).r;
+    float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
+    
+    float light = max(dot(normal, u_reverseLightDir), 0.0);
+    finalColor.rgb = mix(finalColor.rgb * light, finalColor.rgb, shadowLight);
+  }
+
+  gl_FragColor = finalColor;
 }

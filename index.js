@@ -6,13 +6,13 @@ var canvas;
 /** @type{WebGLRenderingContext}  */
 var gl;
 
-var program;
+var shadowMapProgram;
 var render;
 
 var eye;
 const at = [0, 1, 0];
 const up = [0, 1, 0];
-var lightPosition = [0.2, 2, -1];
+var lightPosition = [0.2, 2.3, -1];
 var neonPosition = [-0.6, 2.5, 1.7];
 
 var objects;
@@ -32,6 +32,11 @@ var objects;
   gl.enable(gl.CULL_FACE);
   gl.cullFace(gl.BACK);
 
+  const ext = gl.getExtension("WEBGL_depth_texture");
+  if (!ext) {
+    return alert("need WEBGL_depth_texture");
+  }
+
   // Load shaders
   let vertexShaderSource = await loadTextResource("shaders/vertex.glsl");
   let fragmentShaderSource = await loadTextResource("shaders/fragment.glsl");
@@ -45,8 +50,21 @@ var objects;
     "shaders/fragment-room.glsl"
   );
 
+  let vertexShaderShadow = await loadTextResource(
+    "shaders/shadows/vertex-shadow.glsl"
+  );
+  let fragmentShaderShadow = await loadTextResource(
+    "shaders/shadows/fragment-shadow.glsl"
+  );
+
   console.log("Shaders loaded");
   updateLoadingBar(0.2);
+
+  createShadowMap(gl);
+  shadowMapProgram = webglUtils.createProgramInfo(gl, [
+    vertexShaderShadow,
+    fragmentShaderShadow,
+  ]);
 
   // Define objects to render
   objects = [
@@ -172,8 +190,8 @@ var objects;
     {
       href: "data/chair/chair.obj",
       modelMatrix: m4.yRotate(
-        m4.translate(m4.identity(), -0.6, 0.02, 0.1),
-        degToRad(40)
+        m4.translate(m4.identity(), -0.6, 0.02, -0.15),
+        degToRad(-60)
       ),
       meshProgramInfo: webglUtils.createProgramInfo(gl, [
         vertexShaderSource,
@@ -235,10 +253,32 @@ var objects;
   render = () => {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
+
+    // Calculate light world matrix and projection matrix in order
+    // to draw the shadow map from the light's perspective
+    let lightWorldMatrix = m4.lookAt(lightPosition, at, up);
+    let lightProjectionMatrix = m4.perspective(
+      degToRad(advancedRenderingControls.fovy),
+      advancedRenderingControls.shadowProjectionWidth /
+        advancedRenderingControls.shadowProjectionHeight,
+      controls.near,
+      controls.far
+    );
+
+    // Draw to shadow map
+    gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
+    gl.viewport(0, 0, depthTextureSize, depthTextureSize);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    drawFromLightPov(lightWorldMatrix, lightProjectionMatrix);
+
+    // Draw to screen
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     eye = [
       controls.D * Math.cos(controls.phi) * Math.sin(controls.theta),
@@ -254,32 +294,40 @@ var objects;
       controls.far
     );
 
+    let textureMatrix = m4.identity();
+    textureMatrix = m4.translate(textureMatrix, 0.5, 0.5, 0.5);
+    textureMatrix = m4.scale(textureMatrix, 0.5, 0.5, 0.5);
+    textureMatrix = m4.multiply(textureMatrix, lightProjectionMatrix);
+    textureMatrix = m4.multiply(textureMatrix, m4.inverse(lightWorldMatrix));
+
     let lightPositionEyeSpace = m4.transformPoint(viewMatrix, lightPosition);
     let neonPositionEyeSpace = m4.transformPoint(viewMatrix, neonPosition);
 
-    // Shared uniforms for all objects
+    // Shared uniforms for all objects (ignored if current program doesn't use them)
     const sharedUniforms = {
+      u_view: viewMatrix,
+      u_projection: projectionMatrix,
       u_lightPosition: lightPositionEyeSpace,
       u_lightIntensity: lightControls.lightIntensity,
       u_attenuationFactor: lightControls.attenuationFactor,
-      u_cameraPosition: eye,
-      u_view: viewMatrix,
-      u_projection: projectionMatrix,
       Ka: lightControls.Ka,
       Kd: lightControls.Kd,
       Ks: lightControls.Ks,
-      u_shininess: lightControls.shininess,
       ambientColor: normalizeRGBVector(lightControls.ambientColor),
       diffuseColor: normalizeRGBVector(lightControls.diffuseColor),
       specularColor: normalizeRGBVector(lightControls.specularColor),
+      u_shininess: lightControls.shininess,
       u_neonPosition: neonPositionEyeSpace,
       u_neonColor: normalizeRGBVector(neonControls.neonColor),
       u_neonIntensity: neonControls.neonIntensity,
-      u_neonRadius: 2.0,
+      u_textureMatrix: textureMatrix,
+      u_projectedTexture: depthTexture,
       u_bumpEnabled: advancedRenderingControls.bumpMap ? 1 : 0,
+      u_shadowMapEnabled: advancedRenderingControls.shadows ? 1 : 0,
+      u_bias: advancedRenderingControls.shadowBias,
+      u_reverseLightDir: lightWorldMatrix.slice(8, 11),
     };
 
-    // Iterate over the objects to render
     for (let obj of objects) {
       let modelViewMatrix = m4.multiply(viewMatrix, obj.modelMatrix);
       let modelViewTranspose = m4.transpose(m4.inverse(modelViewMatrix));
@@ -287,7 +335,6 @@ var objects;
       // Set the program and shared uniforms for the object
       gl.useProgram(obj.meshProgramInfo.program);
       webglUtils.setUniforms(obj.meshProgramInfo, sharedUniforms);
-
       for (const { bufferInfo, material } of obj.parts) {
         // Calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
         webglUtils.setBuffersAndAttributes(gl, obj.meshProgramInfo, bufferInfo);
@@ -314,3 +361,34 @@ var objects;
 
   console.log("Rendering done");
 })();
+
+/**
+ * Renders the scene from the light's point of view to create a shadow map.
+ *
+ * This function is used in shadow mapping to render the depth of objects
+ * as seen from the light source. The resulting depth texture is later used
+ * to determine which parts of the scene are in shadow.
+ *
+ * @param {Array<number>} lightWorldMatrix - The 4x4 world matrix of the light source.
+ * @param {Array<number>} lightProjectionMatrix - The 4x4 projection matrix for the light's view.
+ */
+function drawFromLightPov(lightWorldMatrix, lightProjectionMatrix) {
+  let viewMatrix = m4.inverse(lightWorldMatrix);
+
+  gl.useProgram(shadowMapProgram.program);
+
+  webglUtils.setUniforms(shadowMapProgram, {
+    u_view: viewMatrix,
+    u_projection: lightProjectionMatrix,
+  });
+
+  for (let obj of objects) {
+    for (const { bufferInfo } of obj.parts) {
+      webglUtils.setBuffersAndAttributes(gl, shadowMapProgram, bufferInfo);
+      webglUtils.setUniforms(shadowMapProgram, {
+        u_model: obj.modelMatrix,
+      });
+      webglUtils.drawBufferInfo(gl, bufferInfo);
+    }
+  }
+}

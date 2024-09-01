@@ -5,7 +5,7 @@ varying vec2 v_texcoord;
 varying vec3 v_normal; 
 varying vec3 v_tangent;
 varying vec4 v_color;
-
+varying vec4 v_projectedTexcoord;
 uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
@@ -13,6 +13,7 @@ uniform sampler2D normalMap;
 uniform vec3 u_lightPosition;
 uniform float u_lightIntensity;
 uniform float u_attenuationFactor;
+uniform sampler2D u_projectedTexture;
 
 uniform float u_shininess;
 
@@ -35,12 +36,16 @@ uniform float u_neonIntensity;
 uniform float u_neonRadius;
 uniform vec3 u_cameraPosition;
 
+uniform int u_shadowMapEnabled;
+uniform float u_bias;
+uniform vec3 u_reverseLightDir;
+
 void main() {
     vec3 normal = normalize(v_normal);
     vec3 lightDir = u_lightPosition - v_position;
     float distance = length(lightDir);
     vec3 L = normalize(lightDir);
-    
+
     // Light attenuation
     float attenuation = 1.0 / (1.0 + u_attenuationFactor * distance * distance);
 
@@ -95,6 +100,26 @@ void main() {
         vec3 neonContribution = u_neonColor * u_neonIntensity * glow;
         baseColor += neonContribution;
     }
-    
+
+    // Shadow mapping
+    // Only apply shadow mapping if this is the front face and facing the light
+    if (facingViewer > 0.0 && dot(normalizedNormal, L) > 0.0 && u_shadowMapEnabled == 1) {
+        vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+        float currentDepth = projectedTexcoord.z + u_bias;
+
+        bool inRange =
+            projectedTexcoord.x >= 0.0 &&
+            projectedTexcoord.x <= 1.0 &&
+            projectedTexcoord.y >= 0.0 &&
+            projectedTexcoord.y <= 1.0;
+
+        float projectedDepth = texture2D(u_projectedTexture, projectedTexcoord.xy).r;
+        float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
+        
+        float light = max(dot(normal, u_reverseLightDir), 0.0);
+
+        baseColor.rgb = mix(baseColor.rgb * light, baseColor.rgb, shadowLight);
+    }
+
     gl_FragColor = vec4(baseColor, 1.0);
 }
