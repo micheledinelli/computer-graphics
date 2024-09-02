@@ -61,6 +61,8 @@ img {
   height: auto;
   transition: transform 0.5s ease;
   cursor: zoom-in;
+  max-height: 600px;
+  object-fit: contain;
 }
 
 img:hover {
@@ -104,4 +106,21 @@ span.highlight {
   .footer {
     position: relative;
   }
+}
+
+.toc-level-3 {
+  font-size: 1em;
+  margin-top: 0.2em;
+}
+
+.toc-level-4 {
+  font-size: 0.8em;
+  margin-left: 1em;
+  margin-top: 0.2em;
+}
+
+.toc-level-5 {
+  font-size: 0.6em;
+  margin-left: 2em;
+  margin-top: 0.2em;
 }

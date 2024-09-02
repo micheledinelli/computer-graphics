@@ -357,6 +357,40 @@
         <figcaption>Esempio di shadow mapping</figcaption>
       </figure>
 
+      <h3 id="mobile-support">Supporto per dispositivi mobili</h3>
+      <p>
+        Il progetto è stato sviluppato garantendo il suo funzionamento anche su
+        dispositivi mobili. Per muoversi all'interno della scena è possibile
+        utilizzare il touch-screen oppure i controlli disponibili grazie
+        all'interfaccia grafica 2D. Gli eventi generati dal touch-screen sono
+        catturati e gestiti dal file
+        <a href="../utils/keys.js">utils/keys.js</a>.
+      </p>
+
+      <p>
+        Per muovere la camera è possibile scorrere il dito verso l'alto o verso
+        il basso mentre per zoomare all'interno della stanza serve utilizzare
+        due dita e svolgere il cosiddetto pinching, ovvero avvicinare o
+        allontanare le dita appogiate sullo schermo.
+      </p>
+
+      <h4 id="limitazioni-su-ios">Limitazioni su iOS</h4>
+      <p>
+        I moderni dispositivi mobili iOS presentano limitazioni nei confronti
+        della quantità di memoria utilizzabile dai contesti WebGL. Questo
+        potrebbe risultare in un crash del browser se la scena è troppo
+        complessa. Questo problema è stato riscontrato da vari utenti iOS come
+        riportato anche sul
+        <a href="https://forums.developer.apple.com/forums/thread/741624"
+          >forum ufficiale di Apple</a
+        >.
+      </p>
+
+      <figure>
+        <img src="assets/mobile.jpeg" alt="mobile" />
+        <figcaption>Screenshot su mobile</figcaption>
+      </figure>
+
       <h3 id="riferimenti">Riferimenti</h3>
       <p>
         L'implementazione del progetto tiene conto degli
