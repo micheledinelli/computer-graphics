@@ -93,8 +93,8 @@ function touchMove(event) {
     render();
   } else if (event.touches.length === 2 && isPinching) {
     const currentDistance = getDistance(event.touches[0], event.touches[1]);
-    const delta = distance - initialDistance;
-    const zoomSpeed = 0.05;
+    const delta = currentDistance - initialDistance;
+    const zoomSpeed = 0.1;
     const deltaZoom = -Math.sign(delta) * zoomSpeed;
     controls.D = Math.max(1.5, Math.min(controls.D + deltaZoom, 40.0));
     initialDistance = currentDistance;
@@ -116,13 +116,14 @@ canvas.addEventListener("mouseup", () => {
 });
 
 canvas.addEventListener("touchstart", (event) => {
-  lastTouchX = event.touches[0].screenX;
-  lastTouchY = event.touches[0].screenY;
-  moveCamera = true;
-
-  if (event.touches.length === 2) {
+  if (event.touches.length === 1) {
+    lastTouchX = event.touches[0].screenX;
+    lastTouchY = event.touches[0].screenY;
+    moveCamera = true;
+  } else if (event.touches.length === 2) {
     isPinching = true;
     initialDistance = getDistance(event.touches[0], event.touches[1]);
+    console.log("Pinch start, initial distance:", initialDistance);
   }
 });
 canvas.addEventListener("touchmove", touchMove);
