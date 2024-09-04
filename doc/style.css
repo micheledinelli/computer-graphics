@@ -61,7 +61,7 @@ img {
   height: auto;
   transition: transform 0.5s ease;
   cursor: zoom-in;
-  max-height: 600px;
+  max-height: 400px;
   object-fit: contain;
 }
 
@@ -69,7 +69,7 @@ img:hover {
   transform: scale(1.4);
 }
 
-span.highlight {
+.highlight {
   color: rgb(187, 46, 41);
   font-weight: 500;
 }

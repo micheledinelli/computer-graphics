@@ -195,16 +195,48 @@
 
       <p>
         È possibile inoltre modificare la posizione della camera utilizzando le
-        frecce della tastiera. Sono stati previsti 4 keybindings, i quali
-        incrementano o decrementano i parametri che definiscono la posizione
-        della camera di un certo delta angolare
-        <code>dr = (5.0 * Math.PI) / 180.0</code>
+        frecce della tastiera o i tasti WASD. Sono stati previsti 8 keybindings,
+        i quali incrementano o decrementano i parametri che definiscono la
+        posizione della camera di un certo delta angolare
+        <code>dr = (5.0 * Math.PI) / 180.0</code> oppure modificando la distanza
+        della camera dal target.
       </p>
+
+      <p>I comandi disponibili sono:</p>
       <ul>
-        <li>ArrowLeft: decrementa la coordinata theta della camera</li>
-        <li>ArrowRight: incrementa la coordinata theta della camera</li>
-        <li>ArrowUp: decrementa la coordinata phi della camera</li>
-        <li>ArrowDown: incrementa la coordinata phi della camera</li>
+        <li>
+          <code class="highlight">W</code>: incrementa il parametro
+          <code>D</code> di un certo delta muovendo la camera verso il centro
+          della stanza
+        </li>
+        <li>
+          <code class="highlight">S</code>: decrementa il parametro
+          <code>D</code> di un certo delta muovendo la camera verso l'esterno
+        </li>
+        <li>
+          <code class="highlight">A</code>: decrementa il parametro
+          <code>theta</code> di un certo delta angolare
+        </li>
+        <li>
+          <code class="highlight">D</code>: incrementa il parametro
+          <code>theta</code> di un certo delta angolare
+        </li>
+        <li>
+          <code class="highlight">Arrow Up</code>: incrementa il parametro
+          <code>phi</code> di un certo delta angolare
+        </li>
+        <li>
+          <code class="highlight">Arrow Down</code>: decrementa il parametro
+          <code>phi</code> di un certo delta angolare
+        </li>
+        <li>
+          <code class="highlight">Arrow Left</code>: decrementa il parametro
+          <code>theta</code> di un certo delta angolare
+        </li>
+        <li>
+          <code class="highlight">Arrow Right</code>: incrementa il parametro
+          <code>theta</code> di un certo delta angolare
+        </li>
       </ul>
 
       <h3 id="modelli-3d">Modelli 3D</h3>
@@ -243,7 +275,7 @@
         l'impostazione dei campi <code>uniform</code> degli shader.
       </p>
 
-      <h3 id="rendering">Rendering</h3>
+      <h3 id="resa-della-scena">Resa della scena</h3>
       <p>
         Viene definita una lista di oggetti 3D che devono essere resi in
         geometria 3D prospettica. Ogni oggetto 3D può specificare quale vertex
@@ -404,6 +436,12 @@
         così.
       </p>
       <ul>
+        <li>
+          <a
+            href="https://www.unibo.it/it/studiare/dottorati-master-specializzazioni-e-altra-formazione/insegnamenti/insegnamento/2023/479028"
+            >Corso di Computer Graphics</a
+          >
+        </li>
         <li>
           <a href="https://webglfundamentals.org/">WebGLFundamentals</a>
         </li>
