@@ -28,7 +28,6 @@ void main()
     v_texcoord = a_texcoord;
     v_color = vec4(a_color, 1.0);
 
-    // Shadow mapping
     vec4 worldPosition = u_model * a_position;
     v_projectedTexcoord = u_textureMatrix * worldPosition;
 

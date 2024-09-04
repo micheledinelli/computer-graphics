@@ -26,9 +26,9 @@ uniform vec3 specular;
 uniform vec3 ambientColor;
 uniform vec3 diffuseColor;
 uniform vec3 specularColor;
-uniform float Ka;   // Ambient reflection coefficient
-uniform float Kd;   // Diffuse reflection coefficient
-uniform float Ks;   // Specular reflection coefficient
+uniform float Ka;
+uniform float Kd;
+uniform float Ks;
 
 uniform vec3 u_neonPosition;
 uniform vec3 u_neonColor;

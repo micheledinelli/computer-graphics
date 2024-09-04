@@ -5,7 +5,6 @@ uniform vec3 u_neonColor;
 void main() {
     // Normalize coordinates to [0, 1] range
     // Here it is assumed that the resolution is 1000x1000
-    // TODO: Make it dynamic
     vec2 st = gl_FragCoord.xy / vec2(1000.0, 1000.0);
     
     vec2 center = vec2(0.5, 0.5);

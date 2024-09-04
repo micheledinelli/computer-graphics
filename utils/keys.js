@@ -18,6 +18,18 @@ function onKeyDown(event) {
     case "ArrowLeft":
       controls.theta -= dr;
       break;
+    case "w":
+      controls.D = Math.max(1.5, Math.min(controls.D - 0.3, 40.0));
+      break;
+    case "s":
+      controls.D = Math.max(1.5, Math.min(controls.D + 0.3, 40.0));
+      break;
+    case "a":
+      controls.theta += dr;
+      break;
+    case "d":
+      controls.theta -= dr;
+      break;
     default:
       break;
   }
