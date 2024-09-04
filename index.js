@@ -57,7 +57,6 @@ var objects;
     "shaders/shadows/fragment-shadow.glsl"
   );
 
-  console.log("Shaders loaded");
   updateLoadingBar(0.2);
 
   createShadowMap(gl);
@@ -247,7 +246,6 @@ var objects;
     updateLoadingBar(0.8 / objects.length);
   }
 
-  console.log("Objects loaded");
   updateLoadingBar(0.2);
 
   render = () => {
@@ -355,12 +353,7 @@ var objects;
       }
     }
   };
-
-  console.log("Rendering");
-
   render();
-
-  console.log("Rendering done");
 })();
 
 /**
