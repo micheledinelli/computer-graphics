@@ -8,3 +8,5 @@
 [![doc](https://img.shields.io/badge/Go%20to%20documentation-24292e?style=flat)](https://micheledinelli.github.io/where-i-wrote-this/doc)
 
 This project is developed for [Computer Graphics](https://www.unibo.it/it/studiare/dottorati-master-specializzazioni-e-altra-formazione/insegnamenti/insegnamento/2023/479028) university course [@unibo](https://www.unibo.it/it).
+
+![screenshot](./doc/assets/readme.png)
